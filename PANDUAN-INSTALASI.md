@@ -1,6 +1,16 @@
 # 📋 Panduan Instalasi — Slip Gaji Terpusat YASMA PB. Soedirman v2.0
 ### Frontend di GitHub Pages + Google Apps Script sebagai REST API
 
+> 📧 **Pembaruan v2.1 — slip HANYA dikirim lewat surel (Email).** Pengiriman lewat WhatsApp (Fonnte) sudah dinonaktifkan:
+> pilihan metode kirim, token Fonnte, Uji Kirim WhatsApp, dan pratinjau pesan WhatsApp tidak lagi ada di aplikasi.
+> Surel tetap berisi **lampiran PDF** + tombol **"Lihat Slip di Akun Saya"** (tautan pribadi). Kolom *No. WhatsApp* di Master Pegawai
+> tetap ada hanya sebagai data kontak. Saat Admin Yayasan pertama kali membuka aplikasi setelah pembaruan, pengaturan lama
+> otomatis diubah ke Email dan slip yang belum terkirim divalidasi ulang. Bagian panduan tentang WhatsApp/Fonnte di bawah dapat diabaikan.
+>
+> 📎 **Pembaruan v2.2 — surel hanya berisi lampiran PDF untuk diunduh.** Tombol/tautan pribadi "Lihat Slip di Akun Saya" dihapus dari surel,
+> dan rincian gaji di badan surel dimatikan (bisa diaktifkan lagi di Pengaturan → *Rincian gaji di badan surel*). Pegawai membuka surel,
+> lalu mengunduh file PDF slip gajinya. Portal Pegawai (masuk dengan NRP & kata sandi) tetap tersedia.
+
 ```
 ┌──────────────────────────────────────────────┐        ┌──────────────────────────────────────────┐
 │ FRONTEND — GitHub Pages (repo publik)        │        │ BACKEND — Google Apps Script (privat)    │
@@ -10,13 +20,37 @@
 └──────────────────────────────────────────────┘  JSON  └──────────────────────────────────────────┘
 ```
 
-| Berkas | Tempat | Isi |
+Isi paket `slip-gaji-yasma.zip`:
+
+```
+slip-gaji-yasma/
+├── PANDUAN-INSTALASI.md      ← panduan ini
+├── backend/                  ← ditempel ke editor Apps Script (TIDAK diunggah ke GitHub)
+│   ├── Kode.gs
+│   └── appsscript.json
+└── frontend/                 ← ✅ folder repo GitHub — git init DI SINI
+    ├── index.html
+    ├── .nojekyll
+    ├── README.md
+    ├── PANDUAN-INSTALASI.md
+    ├── css/style.css
+    └── js/
+        ├── config.js         ← isi GAS_URL
+        ├── api.js
+        └── app.js
+```
+
+| Folder / berkas | Tempat | Isi |
 |---|---|---|
-| `Kode.gs` | Editor Apps Script | Backend REST API: login & sesi, RBAC, rekap, PDF, surel, WhatsApp, log audit |
-| `appsscript.json` | Editor Apps Script (opsional) | Zona waktu Jakarta + setelan Web App (Execute as Me · Anyone) |
-| `slip-gaji-yasma.zip` | Repo GitHub → GitHub Pages | `index.html`, `css/style.css`, `js/config.js`, `js/api.js`, `js/app.js`, README, panduan ini |
+| `backend/Kode.gs` | Editor Apps Script | Backend REST API: login & sesi, RBAC, rekap, PDF, surel, WhatsApp, log audit |
+| `backend/appsscript.json` | Editor Apps Script (opsional) | Zona waktu Jakarta + setelan Web App (Execute as Me · Anyone) |
+| `frontend/` | Repo GitHub → GitHub Pages | `index.html`, `css/`, `js/`, README, salinan panduan ini |
+
+> ⚠️ **Folder `slip-gaji-yasma/` (induk) BUKAN repo.** Bila `git init` dijalankan di folder induk, yang terunggah adalah folder `backend/` + `frontend/` dan situs GitHub Pages menjadi **404** tanpa pesan galat apa pun. Repo selalu dibuat dari **`frontend/`**.
 
 > **Yang berubah dari v1.1:** URL `/exec` sekarang hanya **API JSON** (tidak menampilkan halaman). Pegawai & admin membuka aplikasi di **alamat GitHub Pages**. Tautan pribadi WhatsApp juga mengarah ke alamat GitHub Pages. Login, peran, PIN, tautan pribadi, pengiriman 350 WhatsApp — semuanya tetap sama.
+>
+> 🔗 **Frontend aktif: https://slipgaji-blush.vercel.app** — tautan pribadi di pesan WhatsApp & surel otomatis berbentuk `https://slipgaji-blush.vercel.app/?s=…` (diatur di `Kode.gs` → `FRONTEND_URL_DEFAULT`). Kolom *Pengaturan → URL Aplikasi* cukup dibiarkan kosong; isi hanya bila alamat frontend pindah.
 
 ---
 
@@ -28,15 +62,16 @@ Pilih **A1** bila aplikasi v1.1 sudah berjalan (disarankan — data tidak perlu 
 Data, akun, pengaturan, token WhatsApp, Script Properties, dan pemicu **tetap utuh** — hanya kode yang diganti.
 
 1. Buka https://script.google.com → proyek **Slip Gaji Yasma** yang lama.
-2. Klik file `Kode.gs` → hapus seluruh isinya → tempel isi **Kode.gs** v2.0 → **Ctrl+S**.
+2. Klik file `Kode.gs` → hapus seluruh isinya → tempel isi **`backend/Kode.gs`** v2.0 (buka dengan Kate / Notepad, Ctrl+A, Ctrl+C) → **Ctrl+S**.
 3. Hapus tiga file HTML lama (tidak dipakai lagi): klik titik tiga di samping `Index`, `Stylesheet`, `JavaScript` → **Delete**.
-4. (Opsional) ⚙️ **Project Settings** → centang *Show "appsscript.json" manifest file in editor* → buka `appsscript.json` → ganti isinya dengan **appsscript.json** v2.0 → Simpan.
+4. (Opsional) ⚙️ **Project Settings** → centang *Show "appsscript.json" manifest file in editor* → buka `appsscript.json` → ganti isinya dengan **`backend/appsscript.json`** → Simpan.
 5. **Deploy → Manage deployments** → pilih deployment aktif → ikon ✏️ **Edit**:
    - *Version*: **New version**
    - *Execute as*: **Me**
    - *Who has access*: **Anyone** ← wajib persis ini
    - Klik **Deploy**. URL `/exec` **tetap sama** seperti sebelumnya.
 6. Uji: buka URL `/exec` di browser → harus tampil teks JSON seperti `{"success":true,"data":{"ready":true,…}}`.
+7. Pilih fungsi `setupAppEnvironment` → **▶ Run** sekali → membuat akun admin unit baru **`adm-non-pend`** (unit ke-7 *Non Pendidikan*, sandi `Sekolah#2026`, wajib diganti saat login pertama). Data lain tidak berubah dan aman dijalankan ulang.
 
 > ⚠️ **Akses harus "Anyone"**, bukan *Anyone with Google account* atau *Anyone within domain*. Selain "Anyone", Google meminta login di halaman perantara, sehingga `fetch()` dari GitHub Pages gagal (galat CORS). Data tetap aman: setiap aksi diperiksa token sesi & perannya di server.
 >
@@ -45,13 +80,13 @@ Data, akun, pengaturan, token WhatsApp, Script Properties, dan pemicu **tetap ut
 ### A2. Instalasi baru
 1. Masuk dengan **akun Google Workspace yayasan** (kuota surel ±1.500/hari; Gmail gratis hanya ±100/hari).
 2. https://script.google.com → **Proyek Baru** → beri nama "Slip Gaji Yasma".
-3. Ganti isi `Code.gs` dengan **Kode.gs**, lalu ganti nama file menjadi `Kode`.
-4. (Opsional) Tempel **appsscript.json** seperti langkah A1-4. Bila tidak, set zona waktu di ⚙️ Project Settings → **(GMT+07:00) Jakarta**.
+3. Ganti isi `Code.gs` dengan **`backend/Kode.gs`**, lalu ganti nama file menjadi `Kode`.
+4. (Opsional) Tempel **`backend/appsscript.json`** seperti langkah A1-4. Bila tidak, set zona waktu di ⚙️ Project Settings → **(GMT+07:00) Jakarta**.
 5. Pilih fungsi `setupAppEnvironment` → **▶ Run** → izinkan akses (Sheets, Drive, Gmail, pemicu, *Connect to an external service*).
-   - **Execution log** menampilkan URL folder *Arsip Slip Gaji Yasma*, spreadsheet *DB_SlipGaji*, dan akun contoh:
+   - **Execution log** menampilkan URL folder *Arsip Slip Gaji Yasma*, spreadsheet *DB_SlipGaji*, dan akun admin awal:
      - Admin Yayasan: `admin` / `Admin#2026`
-     - Admin Sekolah: `adm-sma` (juga `adm-tk`, `adm-sd`, `adm-smp`, `adm-smk-1`, `adm-smk-2`) / `Sekolah#2026`
-     - Pegawai contoh: NRP pertama di log / `Pegawai#2026` (PIN `258036`)
+     - Admin unit: `adm-sma` (juga `adm-tk`, `adm-sd`, `adm-smp`, `adm-smk-1`, `adm-smk-2`, `adm-non-pend`) / `Sekolah#2026`
+   - Database dimulai **kosong** (tanpa data contoh): belum ada pegawai, periode, maupun slip. Isi data pegawai asli lewat *Data Pegawai → Templat Impor*.
    - Aman dijalankan ulang (tidak menggandakan data). ID spreadsheet/folder & kunci rahasia tersimpan di **Script Properties**.
 6. **Deploy → New deployment** → ⚙️ *Select type* → **Web app** → *Execute as*: **Me** · *Who has access*: **Anyone** → **Deploy** → **salin URL `/exec`**.
 
@@ -61,23 +96,27 @@ Data, akun, pengaturan, token WhatsApp, Script Properties, dan pemicu **tetap ut
 
 > Istilah singkat: **repository (repo)** = folder proyek di GitHub · **commit** = menyimpan perubahan dengan catatan · **push** = mengirim commit ke GitHub · **branch** = cabang proyek (kita pakai `main`).
 
-### B1. Ekstrak ZIP — inilah folder kerja Anda
-Folder hasil ekstraksi **`slip-gaji-yasma`** adalah folder yang nanti di-`git init` (jangan masuk lebih dalam, jangan naik satu level).
+### B1. Ekstrak ZIP lalu masuk ke folder `frontend`
+Folder kerja Git adalah **`slip-gaji-yasma/frontend`** — bukan folder induk `slip-gaji-yasma`.
 
 **Linux (Bazzite · Konsole):**
 ```bash
 mkdir -p ~/Documents/slip-gaji-yasma
 unzip ~/Downloads/slip-gaji-yasma.zip -d ~/Documents/slip-gaji-yasma
-cd ~/Documents/slip-gaji-yasma
+cd ~/Documents/slip-gaji-yasma/frontend
+```
+Lalu periksa isinya:
+```bash
 ls -la
 ```
-**Windows:** klik kanan `slip-gaji-yasma.zip` → *Extract All…* → buka folder `slip-gaji-yasma` → klik address bar → ketik `powershell` → Enter → `dir`.
+**Windows:** klik kanan `slip-gaji-yasma.zip` → *Extract All…* → buka folder `slip-gaji-yasma` → buka folder **`frontend`** → klik address bar → ketik `powershell` → Enter → `dir`.
 
 Hasil `ls -la` / `dir` **wajib** menampilkan langsung:
 ```
 .nojekyll   README.md   PANDUAN-INSTALASI.md   index.html   css/   js/
 ```
-Bila yang terlihat justru satu folder `slip-gaji-yasma/` lagi, masuk dulu: `cd slip-gaji-yasma`. Tidak boleh ada file `.gs` di folder ini.
+- Bila yang terlihat `backend/` dan `frontend/` → Anda masih di folder induk: jalankan `cd frontend` dulu.
+- Tidak boleh ada file `.gs` di folder ini (file backend ada di `../backend/`).
 
 ### B2. Isi URL backend di `js/config.js` (WAJIB sebelum push)
 Buka `js/config.js` (Linux: `nano js/config.js` atau buka dengan **Kate**; Windows: Notepad), ganti:
@@ -110,7 +149,7 @@ github.com → tombol **+** → **New repository**:
 - **JANGAN** centang *Add a README*, *.gitignore*, atau *license*
 - **Create repository** → biarkan halaman instruksinya terbuka.
 
-### B6. Push pertama (jalankan satu per satu dari folder `slip-gaji-yasma`)
+### B6. Push pertama (jalankan satu per satu dari folder `slip-gaji-yasma/frontend`)
 ```bash
 git init
 git add .
@@ -139,8 +178,8 @@ git push -u origin main
 ---
 
 ## Bagian C — Hubungkan & uji
-1. Buka alamat GitHub Pages → masuk sebagai **Admin Yayasan**. Alamat ini otomatis tercatat di server sebagai dasar tautan pribadi WhatsApp & surel.
-2. **Pengaturan → Identitas Yayasan → URL Aplikasi**: isi `https://USERNAME.github.io/slip-gaji-yasma/` agar pasti → **Simpan Pengaturan**. (URL `/exec` ditolak di kolom ini.)
+1. Buka **https://slipgaji-blush.vercel.app** → masuk sebagai **Admin Yayasan**.
+2. **Pengaturan → Identitas Yayasan**: pastikan keterangan di bawah kolom *URL Aplikasi* berbunyi *Tautan pribadi WhatsApp & surel memakai: https://slipgaji-blush.vercel.app/?s=…*. Bila kolom berisi alamat lain (mis. GitHub Pages atau URL `/exec` lama), **kosongkan** → **Simpan Pengaturan**.
 3. **Pengaturan → WhatsApp Gateway → Uji Kirim** → pesan uji berisi alamat Portal Pegawai (GitHub Pages).
 4. Satu siklus **Mode Uji**: unggah rekap → Kirim Slip via WhatsApp → buka tautan dari HP → slip langsung terbuka di akun pegawai.
 5. Tekan **F12 → Console / Network** di browser: tidak boleh ada galat CORS atau 404.
@@ -149,19 +188,20 @@ git push -u origin main
 Versi GitHub Pages memakai **Google Identity Services**. Tanpa langkah ini, tombol Google disembunyikan dan login NRP + kata sandi tetap berfungsi.
 1. https://console.cloud.google.com → pilih/buat proyek → **APIs & Services → OAuth consent screen** → isi nama aplikasi & email (tipe *Internal* bila Workspace, *External* bila bukan).
 2. **Credentials → Create credentials → OAuth client ID** → *Application type*: **Web application**.
-3. *Authorized JavaScript origins*: `https://USERNAME.github.io` (tanpa garis miring & tanpa nama repo) → **Create** → salin **Client ID** (`…apps.googleusercontent.com`).
+3. *Authorized JavaScript origins*: `https://slipgaji-blush.vercel.app` (tanpa garis miring di akhir) → **Create** → salin **Client ID** (`…apps.googleusercontent.com`).
 4. Aplikasi → **Pengaturan → Identitas Yayasan → Login Google (opsional)** → tempel → **Simpan Client ID**.
 5. Server memverifikasi token Google lalu mencocokkan **email akun Google** dengan kolom Email di *Data Pegawai / Kelola Akun*. Client ID disimpan di Script Properties (`GOOGLE_CLIENT_ID`).
 
 ## Bagian E — Update / redeploy
-- **Frontend** (setiap mengubah file di folder `slip-gaji-yasma`):
+- **Frontend** (setiap mengubah file di folder `slip-gaji-yasma/frontend`, jalankan dari folder itu):
   ```bash
   git add .
   git commit -m "Deskripsi singkat perubahan"
   git push
   ```
   GitHub Pages membangun ulang dalam 1–2 menit. Masih tampil versi lama → **Ctrl+Shift+R** atau jendela Incognito.
-- **Backend** (setiap mengubah `Kode.gs`): **Deploy → Manage deployments → ✏️ Edit → Version: New version → Deploy**. URL `/exec` tetap sama, jadi `js/config.js` tidak perlu diubah.
+  **Vercel** (`slipgaji-blush.vercel.app`): bila proyek Vercel terhubung ke repo GitHub, `git push` otomatis memicu deploy baru. Bila dulu diunggah lewat Vercel CLI, jalankan `vercel --prod` dari folder `frontend`.
+- **Backend** (setiap mengubah `backend/Kode.gs`, tempel ulang ke editor Apps Script): **Deploy → Manage deployments → ✏️ Edit → Version: New version → Deploy**. URL `/exec` tetap sama, jadi `js/config.js` tidak perlu diubah.
 
 ## Bagian F — Troubleshooting
 
@@ -170,9 +210,9 @@ Versi GitHub Pages memakai **Google Identity Services**. Tanpa langkah ini, tomb
 | Halaman masuk: **"URL backend belum diisi"** | `GAS_URL` masih `XXXX` | Edit `js/config.js`, lalu `git add . && git commit -m "isi GAS_URL" && git push` |
 | **"Server Apps Script tidak mengembalikan JSON"** | Akses deployment bukan *Anyone*, URL `/dev`, atau deployment lama | Deploy → Manage deployments → Edit → Anyone + New version; pakai URL `/exec` |
 | Console: **CORS** / *Failed to fetch* | Sama seperti di atas, atau internet putus | Buka URL `/exec` di tab baru: harus JSON. Bila muncul halaman login Google → akses belum *Anyone* |
-| Situs **404** di GitHub Pages | `index.html` tidak di root repo (folder induk yang di-push) | Push ulang dari folder `slip-gaji-yasma` yang berisi `index.html` (lihat README) |
+| Situs **404** di GitHub Pages, repo GitHub berisi folder `backend/` + `frontend/` | `git init` dijalankan di folder induk `slip-gaji-yasma` | `cd frontend` → `git init` → `git add .` → `git commit -m "Fix: push dari frontend"` → `git branch -M main` → `git remote add origin …` → `git push -u origin main --force` (menimpa isi repo yang salah) |
 | Halaman tanpa warna/gaya, CSS/JS **404** | File diunggah lewat web GitHub sehingga folder `css/` `js/` hilang | Push lewat terminal; jangan memakai *Upload files* di web |
-| Tautan WA membuka JSON / halaman salah | URL Aplikasi masih URL `/exec` lama | Isi **Pengaturan → URL Aplikasi** dengan alamat GitHub Pages, kirim ulang slip |
+| Tautan WA membuka JSON / alamat lama | *Pengaturan → URL Aplikasi* berisi alamat lama, atau `Kode.gs` belum versi terbaru | Kosongkan *URL Aplikasi* (bawaan: https://slipgaji-blush.vercel.app/), pastikan deployment Apps Script **New version**, lalu kirim ulang slip |
 | Tombol Google tidak muncul | Client ID belum disimpan / peramban memblokir skrip Google | Bagian D; gunakan login NRP + sandi |
 | *Password authentication is not supported* | GitHub menolak sandi akun | Pakai Personal Access Token (B6) |
 | `remote origin already exists` | `git remote add` pernah dijalankan | Lewati, atau `git remote set-url origin https://github.com/USERNAME/slip-gaji-yasma.git` |
@@ -182,8 +222,40 @@ Versi GitHub Pages memakai **Google Identity Services**. Tanpa langkah ini, tomb
 
 ## Lampiran — Fitur & operasional aplikasi
 
+### L0. Daftar unit (7 unit)
+
+| Kode unit | Nama di slip & pesan | Akun admin unit |
+|---|---|---|
+| `TK` | TK Islam PB. Soedirman | `adm-tk` |
+| `SD` | SD Islam PB. Soedirman | `adm-sd` |
+| `SMP` | SMP Islam PB. Soedirman | `adm-smp` |
+| `SMA` | SMA Islam PB. Soedirman | `adm-sma` |
+| `SMK-1` | SMK-1 PB. Soedirman | `adm-smk-1` |
+| `SMK-2` | SMK-2 PB. Soedirman | `adm-smk-2` |
+| **`NON-PEND`** | **Non Pendidikan** (staf yayasan, keuangan, satpam, kebersihan, sopir, dll.) | **`adm-non-pend`** |
+
+- Di Excel (impor pegawai & rekap gaji), kolom **Unit** boleh ditulis `NON-PEND`, `Non Pendidikan`, `non-pendidikan`, atau `NONPEND` — semuanya dibaca sebagai unit Non Pendidikan. `smk 1` / `SMK1` dibaca `SMK-1`.
+- Pegawai unit Non Pendidikan otomatis dianggap **Karyawan** (usia pensiun 58 tahun), kecuali jabatannya berisi "Guru".
+- Admin unit Non Pendidikan (`adm-non-pend`) memakai peran *Admin Sekolah*: hanya melihat pegawai & status kirim unitnya, tanpa nominal gaji.
+- **Instalasi yang sudah berjalan (6 unit):** setelah menempel `Kode.gs` terbaru, jalankan **`setupAppEnvironment` sekali** → akun `adm-non-pend` dibuat (sandi `Sekolah#2026`, **wajib diganti** saat login pertama). Data lain tidak berubah. Alternatif: *Kelola Akun → Tambah Akun Admin* → peran Admin Sekolah, unit **Non Pendidikan**.
+- Unit baru langsung muncul di semua filter, grafik dasbor, templat impor, progres pengiriman, dan Monitoring Unit (frontend mengambil daftar unit dari backend).
+
 ### L1. Sebelum produksi (penting)
-- **Ganti semua sandi contoh** (menu *Ganti Sandi*) dan hapus data contoh di sheet `Pegawai`, `Akun` (selain admin), `Periode`, `Slip`.
+- **Ganti sandi bawaan** akun admin (menu *Ganti Sandi*).
+- Isi **Pengaturan → Identitas Yayasan** (telepon, surel keuangan, WhatsApp TU) dan **Penanda Tangan Slip** (nama bendahara) dengan data asli. Nama bendahara kosong secara bawaan, jadi slip menampilkan garis isian sampai nama diisi.
+
+### L1a. Mengosongkan data contoh (instalasi lama)
+Versi sebelumnya membuat **data contoh** saat `setupAppEnvironment` pertama dijalankan: 36–42 pegawai fiktif beserta akunnya, dan 5 periode (THR Juni, Bulanan Juli–Oktober 2026) beserta slipnya. Versi ini **tidak lagi membuat data contoh**. Untuk mengosongkan data contoh yang sudah terlanjur ada:
+1. Tempel `Kode.gs` terbaru di editor Apps Script → **Simpan**.
+2. Pada daftar fungsi di toolbar, pilih **`hapusDataContoh`** → **▶ Run** (cukup sekali).
+3. Baca **Execution log**: jumlah pegawai, akun, periode, dan slip contoh yang dihapus, serta sisa pegawai asli.
+4. Muat ulang aplikasi di peramban (**Ctrl+Shift+R**).
+
+Yang dihapus hanya data contoh: periode bertanda *Data Contoh* beserta slip dan jejak aksesnya, serta pegawai yang **NRP dan namanya persis sama** dengan data contoh, beserta akun portalnya. Nama akun admin contoh diganti menjadi *Admin Yayasan* (sandi tetap). Nama bendahara contoh dikosongkan.
+
+Yang **tidak** disentuh: pegawai, periode, dan slip asli; akun admin; Pengaturan lain; logo; token WhatsApp; Log Audit. Pegawai contoh yang sudah ditimpa data asli lewat impor (namanya sudah berbeda) juga tidak ikut terhapus.
+
+Cadangan CSV pegawai yang dihapus tersimpan di folder Drive *Cadangan Data Pegawai*. Fungsi ini aman dijalankan ulang: bila sudah bersih, log menampilkan *"Tidak ada data contoh — database sudah bersih"*. Bila pengiriman slip sedang berjalan, jalankan setelah pengiriman selesai atau dijeda.
 - **Mode Uji = Ya** secara bawaan → semua surel slip dikirim ke pemilik skrip dan hanya **5 WhatsApp pertama** dikirim ke *Nomor penerima saat Mode Uji* (kosong = WhatsApp TU); sisanya disimulasikan. Isi **WhatsApp TU** dengan nomor asli, uji dulu satu siklus (buka tautan dari pesan uji di HP), lalu ubah ke **Tidak** di menu *Pengaturan*.
 - Isi data pegawai: menu *Data Pegawai → **Templat Impor***:
   - **Templat kosong** — untuk pegawai baru (berisi 2 baris contoh `CONTOH-…` yang otomatis diabaikan, plus sheet *Petunjuk*).
@@ -200,13 +272,18 @@ Versi GitHub Pages memakai **Google Identity Services**. Tanpa langkah ini, tomb
 | Komponen Penghasilan (Rp) | Komponen Potongan (Rp) |
 |---|---|
 | Gapok | Pinjaman YYS |
-| Tunjangan Kerja | Potongan Transport |
-| Tunjangan Keluarga | Bon Baru |
-| Tunjangan Jabatan | PSB |
-| Tunjangan Beras | DPLK |
-| Tunjangan Kesra | Cicilan Rumah |
-| **Gaji Kotor** *(subtotal)* | SIMPIN PNS |
-| Transport Kehadiran | PPh 21 |
+| Tunjangan Kerja | **Pinjaman Sekolah** *(baru)* |
+| Tunjangan Keluarga | Potongan Transport |
+| Tunjangan Jabatan | **Bon Lama** *(baru)* |
+| Tunjangan Beras | Bon Baru |
+| Tunjangan Kesra | PSB |
+| **Gaji Kotor** *(subtotal)* | DPLK |
+| Transport Kehadiran | Cicilan Rumah |
+| | SIMPIN PNS |
+| | PPh 21 |
+
+- **Pinjaman Sekolah** dan **Bon Lama** ikut dijumlahkan ke **Total Potongan** dan mengurangi THP. Judul kolom Excel fleksibel: `Pinjaman Sekolah`, `PINJAMAN SEKOLAH (Rp)`, `Pinj. Sekolah`, `Bon Lama`, `BON LAMA (Rp)`.
+- Aplikasi yang sudah berjalan otomatis memakai daftar potongan baru **bila daftar potongan di Pengaturan belum pernah diubah**. Bila sudah pernah diubah: *Pengaturan → Komponen Gaji → Komponen potongan* → sisipkan `Pinjaman Sekolah` dan `Bon Lama` (pisahkan koma) → Simpan, lalu unduh templat rekap yang baru.
 
 - **Gaji Kotor = Gapok + Tunjangan Kerja + Keluarga + Jabatan + Beras + Kesra** (rumus otomatis di templat). Nilainya **tidak dijumlahkan lagi**, jadi **Total Penghasilan = Gaji Kotor + Transport Kehadiran** dan **THP = Total Penghasilan − Total Potongan**.
 - Kolom Gaji Kotor boleh dikosongkan (dihitung sistem). Bila diisi tetapi berbeda dengan jumlah rinciannya → anomali ringan di halaman Pratinjau. Bila **hanya** Gaji Kotor yang diisi (rincian kosong), nilainya dipakai langsung.
@@ -276,7 +353,7 @@ Catatan tautan pribadi:
 - **Pengaturan → Tautan pribadi di WhatsApp**: `Langsung` (bawaan) = tautan langsung membuka slip; `Wajib sandi` = tautan hanya mengisi NRP, pegawai tetap memasukkan kata sandi (lebih ketat bila HP sering dipinjam).
 - **Unduh PDF tetap memakai PIN dokumen.** Pegawai yang belum pernah login (sandi sementara tidak diketahui) bisa **mengaktifkan akun** dari sesi tautan: menu *Keamanan* → buat kata sandi + PIN tanpa sandi lama. Setelah aktif, berikutnya ia bisa masuk langsung dengan NRP & sandi. (Jadi *Kirim Kredensial* lewat surel tidak wajib lagi bagi pegawai yang hanya memakai WhatsApp.)
 - Yang disimpan di spreadsheet hanya **hash** tautan (kolom `HashTautan`, `TautanSampai`), bukan tautannya. Kirim ulang membuat tautan baru (3 tautan terakhir tetap berlaku). Tautan otomatis ditolak bila pegawai/akun dinonaktifkan atau akun sedang terkunci. Setiap pembukaan tercatat di Log Audit dan sheet `AksesSlip`.
-- Tautan memakai **alamat GitHub Pages** (frontend), bukan URL `/exec`. Alamat tercatat otomatis saat Admin Yayasan membuka aplikasi lewat GitHub Pages; agar pasti, isi **Pengaturan → Identitas Yayasan → URL Aplikasi**. Pengiriman WhatsApp ditolak bila URL belum diketahui.
+- Tautan memakai **alamat frontend https://slipgaji-blush.vercel.app/** (bukan URL `/exec`), diatur di `Kode.gs` → `FRONTEND_URL_DEFAULT`. Untuk memakai alamat lain, isi **Pengaturan → Identitas Yayasan → URL Aplikasi**; kosongkan kolom itu untuk kembali ke alamat Vercel.
 
 #### Menyiapkan WhatsApp Gateway (Fonnte)
 1. Daftar di **fonnte.com** → *Add Device* dengan nomor WhatsApp pengirim (disarankan nomor khusus TU, bukan nomor pribadi).
@@ -318,6 +395,25 @@ Nama jenis tampil di slip PDF (mis. *SLIP GAJI THR*), subjek surel, pesan WhatsA
 - Logo langsung dipakai di sidebar, halaman masuk, topbar ponsel, **kop slip PDF**, dan **kepala surel** (gambar inline, tetap tampil di Gmail).
 - Berkas disimpan di Drive (*Arsip Slip Gaji Yasma › Logo Yayasan*); logo lama dipindah ke sampah saat diganti. **Hapus Logo** mengembalikan emblem bawaan. Unggah/hapus tercatat di Log Audit.
 - Tombol **Lihat di Slip** membuka pratinjau slip dengan logo baru.
+
+### L5a. Unduh Data Pegawai (Excel & PDF)
+Menu **Data Pegawai → Unduh Data** → pilih **Excel (.xlsx)** atau **PDF**. Dialog yang muncul berisi:
+- **Unit:** *Seluruh Unit* atau salah satu dari 7 unit. Pilihan awal mengikuti filter unit yang sedang aktif.
+- **Status:** Aktif & Nonaktif, Aktif saja, atau Nonaktif saja.
+- **Format:** bisa diganti langsung di dialog. Jumlah pegawai yang akan diunduh tampil sebelum menekan **Unduh**.
+
+| | Excel (.xlsx) | PDF (A4 mendatar) |
+|---|---|---|
+| Seluruh unit | Lembar **Rekap** (per unit: guru, karyawan, aktif, nonaktif, jumlah), **Seluruh Unit**, lalu satu lembar per unit | Halaman 1 berisi rekap per unit, lalu tiap unit dimulai di halaman baru |
+| Satu unit | Satu lembar untuk unit tersebut | Tabel unit tersebut |
+| Kolom | NRP, nama, unit, jabatan, jenis, status kepegawaian, golongan, tanggal lahir, usia, tahun masuk, lama kerja, tanggal pensiun, surel, WhatsApp, bank & rekening, status | Sama, tanpa usia dan **tanpa nomor rekening** |
+
+- **Hak akses:** Admin Yayasan dapat memilih unit mana pun. **Admin Sekolah hanya unitnya sendiri**, tanpa kolom tanggal lahir, golongan, pensiun, dan rekening (data itu memang tidak dikirim ke Admin Sekolah).
+- **Format data:** NRP, nomor WhatsApp, dan rekening disimpan sebagai **teks** di Excel, sehingga nol di depan tidak hilang. Urutan data mengikuti urutan resmi unit, lalu nama.
+- **Kop dan kaki halaman PDF:** kop memuat logo dan nama yayasan. Kaki halaman memuat waktu cetak, nama pencetak, keterangan *Dokumen internal*, dan nomor halaman. Pegawai nonaktif dicetak abu-abu.
+- **Diproses di peramban:** berkas dibuat langsung di peramban (cepat, tanpa membebani kuota GAS). Pustaka PDF baru diunduh saat pertama kali dipakai, sehingga membutuhkan koneksi internet.
+- **Log Audit:** setiap unduhan tercatat (*UNDUH DATA PEGAWAI*: format, unit, status, jumlah).
+- **Keamanan:** berkas memuat data pribadi pegawai. Simpan dengan aman dan jangan dibagikan ke grup umum.
 
 ### L6. Catatan keamanan & batasan GAS
 - Sandi dan PIN disimpan sebagai hash HMAC-SHA256 berulang + salt + pepper; 5× salah → akun terkunci 15 menit.

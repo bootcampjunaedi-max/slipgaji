@@ -535,3 +535,12 @@ a { color: var(--emerald-700); }
 .gsi-btn { display: flex; justify-content: center; min-height: 44px; }
 .gsi-btn > div { width: 100%; display: flex; justify-content: center; }
 .api-warn code { word-break: break-all; }
+
+/* ── Unduh Data Pegawai: pilihan format ── */
+.ex-fmt { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+.ex-fmt .check-row { border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: .7rem .8rem; margin: 0; background: var(--surface); transition: border-color .15s var(--ease), background .15s var(--ease); }
+.ex-fmt .check-row:hover { border-color: var(--border-2); }
+.ex-fmt .check-row:has(input:checked) { border-color: var(--emerald-700); background: var(--info-soft); }
+.ex-fmt .check-row .bi { font-size: 1.35rem; line-height: 1; color: var(--emerald-700); }
+.ex-fmt .check-row small { display: block; color: var(--text-2); font-size: .76rem; }
+@media (max-width: 480px) { .ex-fmt { grid-template-columns: 1fr; } }

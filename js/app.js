@@ -1,5 +1,5 @@
 /* ============================================================
-   SLIP GAJI TERPUSAT — Frontend SPA (js/app.js) · v2.0 GitHub Pages
+   SLIP GAJI TERPUSAT — Frontend SPA (js/app.js) · v2.0 (Vercel: https://slipgaji-blush.vercel.app)
    Koneksi ke backend GAS lewat fetch() di js/api.js (call/api/apiSilent)
    Prinsip gas-instant-ux:
    1) Semua halaman dimuat sekali; navigasi = tampil/sembunyi section (0 ms)
@@ -23,7 +23,7 @@ const BLN3 = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Ok
 const JENIS_LABEL = { BULANAN: 'Gaji Reguler', THR: 'Gaji THR', BONUS: 'Gaji Bonus 13', REVISI: 'Revisi Gaji Reguler' };
 const JENIS_SHORT = { THR: 'THR', BONUS: 'Bonus 13', REVISI: 'Rev' };
 const revNo = id => { const m = String(id || '').match(/-REVISI-(\d+)$/); return m ? ' #' + m[1] : ''; };
-const UNIT_COLORS = ['#1E4D36', '#3A7A5A', '#6FAF8C', '#A8D5BA', '#F2C14E', '#D9A520'];
+const UNIT_COLORS = ['#1E4D36', '#3A7A5A', '#6FAF8C', '#A8D5BA', '#F2C14E', '#D9A520', '#7A8B99']; // urutan = UNITS (ke-7: Non Pendidikan)
 const PAGE_SIZE = 12;
 
 // ── UTIL ──────────────────────────────────────────────────────
@@ -165,15 +165,13 @@ function statusValid(sv) {
   if (sv === 'KRITIS') return '<span class="status bad"><i class="bi bi-x-circle"></i> Anomali Kritis</span>';
   return '<span class="status warn"><i class="bi bi-exclamation-triangle"></i> Anomali Ringan</span>';
 }
-// ── Kanal pengiriman: Surel (Gmail) & WhatsApp (gateway Fonnte) ──
+// ── Kanal pengiriman: HANYA Surel (Gmail). WhatsApp dinonaktifkan sejak v2.1 ──
 const METODE = {
-  'Email': { ic: 'bi-envelope', lbl: 'Email', kanal: ['email'] },
-  'WhatsApp': { ic: 'bi-whatsapp', lbl: 'WhatsApp', kanal: ['wa'] },
-  'Email + WhatsApp': { ic: 'bi-send-check', lbl: 'Email + WhatsApp', kanal: ['email', 'wa'] }
+  'Email': { ic: 'bi-envelope', lbl: 'Email', kanal: ['email'] }
 };
 const CH = { email: { k: 'se', e: 'ee', t: 'te', ic: 'bi-envelope', lbl: 'Surel' }, wa: { k: 'sw', e: 'ew', t: 'tw', ic: 'bi-whatsapp', lbl: 'WhatsApp' } };
 const TYPO_DOM = ['gmial.com', 'gmaill.com', 'gmai.com', 'gamil.com', 'gmail.co', 'gmail.con', 'gmal.com', 'yahooo.com', 'yaho.com', 'hotmial.com', 'outlok.com', 'gmail.cm'];
-function metodeNow() { const m = (App.d.settingsFull && App.d.settingsFull.MetodeKirim) || (App.d.settings && App.d.settings.metode) || 'Email'; return METODE[m] ? m : 'Email'; }
+function metodeNow() { return 'Email'; }
 const kanalAktif = m => METODE[m || metodeNow()].kanal;
 function kontakOk(s, ch) {
   if (ch === 'email') { const e = String(s.email || '').toLowerCase(); return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e) && e.indexOf('..') < 0 && TYPO_DOM.indexOf(e.split('@')[1]) < 0; }
@@ -193,7 +191,7 @@ function chBadge(ch, v, err) {
 function statusKanal(x) {
   const a = [];
   if (x.se && x.se !== 'Draft') a.push(chBadge('email', x.se, x.ee));
-  if (x.sw && x.sw !== 'Draft') a.push(chBadge('wa', x.sw, x.ew));
+  if (x.sw === 'Terkirim') a.push(chBadge('wa', x.sw, x.ew)); // riwayat lama sebelum WhatsApp dinonaktifkan
   if (x.lihat) a.push(lihatBadge(x));
   return a.length ? '<span class="ch-badges">' + a.join('') + '</span>' : statusKirim(x.sk, x.err);
 }
@@ -257,7 +255,7 @@ function makeChart(id, cfg) {
 // ── NAVIGASI (SPA instan) ─────────────────────────────────────
 const NAV = {
   AdminYayasan: {
-    main: [['dashboard', 'bi-grid-1x2', 'Dasbor Yayasan', 'W-03'], ['upload', 'bi-file-earmark-arrow-up', 'Unggah Rekap Gaji', 'W-04'], ['preview', 'bi-send-check', 'Pratinjau & Kirim', 'W-05'], ['progress', 'bi-envelope-paper', 'Progress Pengiriman', 'W-06'], ['pegawai', 'bi-people', 'Data Pegawai', 'W-07'], ['riwayat', 'bi-clock-history', 'Riwayat Pengiriman', 'W-09'], ['akun', 'bi-person-lock', 'Kelola Akun & RBAC', 'W-10'], ['monitoring', 'bi-bank', 'Monitoring Unit Sekolah', 'W-11'], ['portal', 'bi-person-vcard', 'Portal Pegawai', 'W-12']],
+    main: [['dashboard', 'bi-grid-1x2', 'Dasbor Yayasan', 'W-03'], ['upload', 'bi-file-earmark-arrow-up', 'Unggah Rekap Gaji', 'W-04'], ['preview', 'bi-send-check', 'Pratinjau & Kirim', 'W-05'], ['progress', 'bi-envelope-paper', 'Progress Pengiriman', 'W-06'], ['pegawai', 'bi-people', 'Data Pegawai', 'W-07'], ['riwayat', 'bi-clock-history', 'Riwayat Pengiriman', 'W-09'], ['akun', 'bi-person-lock', 'Kelola Akun & RBAC', 'W-10'], ['monitoring', 'bi-bank', 'Monitoring Unit', 'W-11'], ['portal', 'bi-person-vcard', 'Portal Pegawai', 'W-12']],
     foot: [['pengaturan', 'bi-gear', 'Pengaturan', 'W-14'], ['keamanan', 'bi-shield-lock', 'Ganti Sandi', 'W-02']]
   },
   AdminSekolah: {
@@ -352,18 +350,9 @@ function enterApp(res) {
   navigateTo(App.user.mustChange ? 'keamanan' : App.ui.pendingSlip ? 'portal' : (last && ALLOWED[App.role].indexOf(last) >= 0 ? last : LANDING[App.role]));
   if (App.role === ROLE.Y && App.d.dispatch && App.d.dispatch.job && App.d.dispatch.job.status === 'BERJALAN') startWorker();
   if (App.ui.pendingSlip) setTimeout(openPendingSlip, 150);
-  reportFrontendUrl();
 }
-/** Admin Yayasan → catat alamat frontend ini di server (dasar tautan pribadi WhatsApp) bila berbeda. */
-function reportFrontendUrl() {
-  if (App.role !== ROLE.Y || !/^https:$/.test(location.protocol)) return;
-  const here = location.origin + location.pathname.replace(/index\.html$/, '');
-  if (App.d && App.d.webUrl === here) return;
-  apiSilent('apiReportFrontendUrl', here).then(r => { if (r && r.url) App.d.webUrl = r.url; }).catch(() => { });
-}
-
-// ── TAUTAN PRIBADI WHATSAPP (?s=…) ───────────────────────────
-/** Baca parameter tautan pribadi ?s=… dari alamat halaman (GitHub Pages). */
+// ── TAUTAN PRIBADI DI SUREL (?s=…) ───────────────────────────
+/** Baca parameter tautan pribadi ?s=… dari alamat halaman (https://slipgaji-blush.vercel.app/?s=…). */
 function readLinkParam(cb) {
   let v = '';
   try { v = new URLSearchParams(location.search).get('s') || ''; } catch (e) { }
@@ -406,9 +395,9 @@ function showLinkNote(r) {
   const nama = r.nama ? 'Bapak/Ibu <b>' + esc(r.nama) + '</b>, s' : 'S';
   const masa = (App.boot && App.boot.masaTautan) || 14;
   const v = {
-    login: ['', 'bi-whatsapp', nama + 'lip ' + per + ' sudah terbit. Masukkan kata sandi Anda untuk melihatnya — slip langsung terbuka setelah masuk.'],
+    login: ['', 'bi-envelope-open', nama + 'lip ' + per + ' sudah terbit. Masukkan kata sandi Anda untuk melihatnya — slip langsung terbuka setelah masuk.'],
     expired: ['warn', 'bi-hourglass-bottom', 'Tautan pribadi untuk slip ' + per + ' sudah melewati masa berlaku (' + masa + ' hari). Slip tetap tersedia: masuk dengan NRP & kata sandi, slip langsung dibuka.'],
-    invalid: ['warn', 'bi-link-45deg', 'Tautan tidak dikenali atau sudah diganti tautan yang lebih baru (kirim ulang). Buka tautan terbaru di WhatsApp, atau masuk dengan NRP & kata sandi.'],
+    invalid: ['warn', 'bi-link-45deg', 'Tautan tidak dikenali atau sudah diganti tautan yang lebih baru (kirim ulang). Buka tautan di surel terbaru, atau masuk dengan NRP & kata sandi.'],
     error: ['bad', 'bi-shield-exclamation', esc(r.message || 'Tautan tidak dapat dibuka.')]
   }[r.status] || ['warn', 'bi-info-circle', 'Silakan masuk dengan NRP & kata sandi.'];
   $('#linkNote').innerHTML = '<div class="link-note ' + v[0] + '" role="status"><i class="bi ' + v[1] + '"></i><div>' + v[2] + '</div></div>';
@@ -555,8 +544,8 @@ RENDER.dashboard = function () {
   if (locked) ins.push('<b>' + locked + ' akun</b> sedang terkunci karena salah sandi berulang.');
   const noPin = (d.akun || []).filter(a => a.peran === ROLE.P && !a.pin && a.status === 'Aktif').length;
   if (noPin) ins.push(noPin + ' pegawai belum membuat PIN dokumen (belum pernah login).');
-  if (per && c.terkirim) { const lh = slips.filter(s => s.lihat).length; ins.push('<b>' + lh + ' dari ' + c.terkirim + '</b> pegawai sudah membuka slip ' + esc(periodeShort(per)) + ' (tautan WhatsApp / portal).'); }
-  if (d.settings.modeUji === 'Ya') ins.push('<b>Mode Uji aktif</b>: surel slip dialihkan ke pemilik skrip dan hanya ' + (d.settings.ujiWaMax || 5) + ' WhatsApp pertama dikirim ke nomor uji. Matikan di Pengaturan sebelum produksi.');
+  if (per && c.terkirim) { const lh = slips.filter(s => s.lihat).length; ins.push('<b>' + lh + ' dari ' + c.terkirim + '</b> pegawai sudah membuka slip ' + esc(periodeShort(per)) + ' (tautan surel / portal).'); }
+  if (d.settings.modeUji === 'Ya') ins.push('<b>Mode Uji aktif</b>: semua surel slip dialihkan ke pemilik skrip. Matikan di Pengaturan sebelum produksi.');
   $('#insightList').innerHTML = ins.map(x => '<li>' + x + '</li>').join('') || '<li>Belum ada data periode.</li>';
 
   // Tabel periode
@@ -633,7 +622,7 @@ function renderUploadResult() {
   const bad = slips.filter(s => s.sv !== 'VALID');
   box.innerHTML = fileCard +
     '<div class="kpi-grid mt-3">' + kpi('Total Baris Data', r.report.total + ' <small>Baris Pegawai</small>', 'bi-list-ol', '<span class="serif">Header & formula terfilter</span>') +
-    kpi('Unit Terdeteksi', units.length + ' <small>Unit Sekolah</small>', 'bi-bank', units.map(unitPill).join(' ')) +
+    kpi('Unit Terdeteksi', units.length + ' <small>Unit</small>', 'bi-bank', units.map(unitPill).join(' ')) +
     kpi('Siap Kirim', r.report.valid + ' <small>Baris Valid (' + pct(r.report.valid, r.report.total) + '%)</small>', 'bi-patch-check', '<span class="serif">● Kredensial & surel sinkron</span>') +
     kpi('Perlu Perhatian', r.report.anomali + ' <small>Baris Anomali</small>', 'bi-exclamation-triangle', r.report.anomali ? '<span class="text-danger serif">● Harus diperiksa sebelum dispatch</span>' : '<span class="serif">Tidak ada anomali</span>', r.report.anomali ? 'alert' : '') + '</div>' +
     '<div class="card-app mt-3"><div class="card-head"><h3><i class="bi bi-shield-check text-danger"></i> Hasil Audit Pra-Validasi Parser (' + bad.length + ' Catatan)</h3><span class="tiny serif text-muted-2">' + esc(per ? per.id : '') + '</span></div>' +
@@ -761,17 +750,15 @@ function pvAction(x) {
   if (x.sv === 'KRITIS' && /tidak ditemukan/i.test(x.cv)) return '<button class="btn btn-primary-app btn-xs" data-action="registerPeg" data-id="' + esc(x.id) + '"><i class="bi bi-person-plus"></i> Daftarkan</button>';
   if (x.sv === 'KRITIS') return pv;
   const fixE = '<button class="btn btn-primary-app btn-xs" data-action="fixEmail" data-id="' + esc(x.id) + '"><i class="bi bi-pencil"></i> Perbaiki Surel</button>';
-  const fixW = '<button class="btn btn-primary-app btn-xs" data-action="fixWA" data-id="' + esc(x.id) + '"><i class="bi bi-whatsapp"></i> Perbaiki No. WA</button>';
-  if (x.sv === 'RINGAN' && (/surel/i.test(x.cv) || /WhatsApp/.test(x.cv))) return (/surel/i.test(x.cv) ? fixE + ' ' : '') + (/WhatsApp/.test(x.cv) ? fixW : '');
+  if (x.sv === 'RINGAN' && /surel/i.test(x.cv)) return fixE;
   if (x.sv === 'RINGAN') return '<button class="btn btn-gold btn-xs" data-action="approveSlip" data-id="' + esc(x.id) + '"><i class="bi bi-check2"></i> Setujui</button> ' + pv;
   const resend = ' <button class="btn btn-ghost btn-xs" data-action="resendSlip" data-id="' + esc(x.id) + '" title="Kirim ulang" aria-label="Kirim ulang"><i class="bi bi-arrow-repeat"></i></button>';
-  if (x.sw === 'Gagal' || x.sw === 'Dilewati') return fixW + resend;
   if (x.se === 'Gagal' && /surel|550/i.test(x.ee)) return fixE + resend;
-  const msg = ' <button class="btn btn-ghost btn-xs" data-action="previewMsg" data-id="' + esc(x.id) + '" title="Pratinjau isi pesan" aria-label="Pratinjau isi pesan"><i class="bi bi-chat-square-text"></i></button>';
+  const msg = ' <button class="btn btn-ghost btn-xs" data-action="previewMsg" data-id="' + esc(x.id) + '" title="Pratinjau isi surel" aria-label="Pratinjau isi surel"><i class="bi bi-envelope-paper"></i></button>';
   if (x.sk === 'Gagal' || x.sk === 'Terkirim') return pv + msg + resend;
   return pv + msg;
 }
-/** Kontak tujuan sesuai metode aktif (surel dan/atau No. WhatsApp dari Master Pegawai). */
+/** Kontak tujuan: alamat surel pegawai. */
 function pvKontak(x, kanal) {
   const p = App.idx.peg[x.nrp] || {};
   return '<div class="kontak">' + kanal.map(ch => {
@@ -779,31 +766,19 @@ function pvKontak(x, kanal) {
     return '<span class="small ' + (ok ? '' : 'text-danger text-decoration-underline') + '"><i class="bi ' + CH[ch].ic + '"' + (ch === 'wa' && ok ? ' style="color:#25D366"' : '') + '></i> ' + esc(val) + '</span>';
   }).join('') + '</div>';
 }
-/** Kartu pilihan metode kirim (W-05). Pilihan disimpan ke Pengaturan & validasi kontak diperbarui. */
+/** Kartu info pengiriman (W-05): slip dikirim HANYA lewat surel (lampiran PDF + tombol ke akun). */
 function renderMetode(per, slips) {
-  const d = App.d, m = metodeNow(), gw = d.waGateway || {}, st = d.settingsFull || {}, q = d.quota;
+  const d = App.d, q = d.quota, uji = d.settings.modeUji === 'Ya';
   const running = per.status === 'Sedang Dikirim' && d.dispatch && d.dispatch.job && d.dispatch.job.idPeriode === per.id && d.dispatch.job.status === 'BERJALAN';
-  const base = slips.filter(s => s.sv !== 'KRITIS'), n = base.length;
-  const nEm = base.filter(s => kontakOk(s, 'email')).length, nWa = base.filter(s => kontakOk(s, 'wa')).length, nAny = base.filter(s => kontakOk(s, 'email') || kontakOk(s, 'wa')).length;
-  const sub = {
-    'Email': 'Lampiran PDF via Gmail · ' + nEm + '/' + n + ' surel valid',
-    'WhatsApp': (gw.ready ? 'Fonnte · pemberitahuan + tautan pribadi' : 'Token Fonnte belum diatur') + ' · ' + nWa + '/' + n + ' No. WA',
-    'Email + WhatsApp': 'Dua kanal sekaligus · ' + nAny + '/' + n + ' terjangkau'
-  };
-  const kanal = kanalAktif(m), uji = d.settings.modeUji === 'Ya';
-  const info = [];
-  if (kanal.indexOf('email') >= 0) info.push('<span><i class="bi bi-envelope"></i> Surel: lampiran PDF · sisa kuota ' + (q < 0 ? 'tidak terbaca' : fmtNum(q)) + (uji ? ' · <b>uji → pemilik skrip</b>' : '') + '</span>');
-  if (kanal.indexOf('wa') >= 0 && gw.ready) info.push('<span><i class="bi bi-whatsapp"></i> WhatsApp: pemberitahuan + tautan pribadi ke akun (tanpa nominal & PDF, berlaku ' + esc(d.settings.masaTautan || 14) + ' hari) · jeda ±' + esc(st.JedaWA || 3) + ' dtk/pesan' + (uji ? ' · <b>uji → ' + esc(fmtWA(st.NomorUjiWA || d.settings.wa)) + ' (maks. ' + (d.settings.ujiWaMax || 5) + ' pesan)</b>' : '') + '</span>');
-  if (m === 'Email + WhatsApp') info.push('<span><i class="bi bi-info-circle"></i> Pegawai tanpa surel/No. WA tetap menerima lewat kanal lainnya.</span>');
-  $('#pvMetode').innerHTML = '<div class="card-app mt-3"><div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3"><div><p class="eyebrow mb-1">Metode Pengiriman Slip</p><h3 class="mb-0">Kirim slip melalui</h3></div>' + (running ? '<span class="chip chip-warn"><i class="bi bi-lock"></i> Terkunci selama pengiriman berjalan</span>' : uji ? '<span class="chip chip-gold"><i class="bi bi-cone-striped"></i> Mode Uji</span>' : '') + '</div>' +
-    '<div class="metode-grid" role="radiogroup" aria-label="Metode pengiriman slip">' + Object.keys(METODE).map(k => {
-      const o = METODE[k], on = k === m;
-      return '<button type="button" role="radio" aria-checked="' + on + '" class="metode-opt' + (on ? ' active' : '') + '" data-action="setMetode" data-id="' + esc(k) + '"' + (running ? ' disabled' : '') + '><span class="m-ic' + (k === 'WhatsApp' ? ' wa' : k === 'Email' ? '' : ' both') + '"><i class="bi ' + o.ic + '"></i></span><span class="m-txt"><b>' + esc(o.lbl) + '</b><small>' + esc(sub[k]) + '</small></span><i class="bi ' + (on ? 'bi-check-circle-fill' : 'bi-circle') + ' m-check" aria-hidden="true"></i></button>';
-    }).join('') + '</div>' +
-    (kanal.indexOf('wa') >= 0 && !gw.ready ? '<div class="alert-soft warn mt-3 d-flex flex-wrap gap-2 align-items-center"><i class="bi bi-exclamation-triangle"></i><span class="flex-grow-1">Token perangkat WhatsApp gateway (Fonnte) belum diatur, slip belum bisa dikirim lewat WhatsApp.</span><button class="btn btn-gold btn-sm" data-nav="pengaturan"><i class="bi bi-gear"></i> Atur Token WhatsApp</button></div>' : '') +
-    (kanal.indexOf('wa') >= 0 && !d.webUrl ? '<div class="alert-soft warn mt-3 d-flex flex-wrap gap-2 align-items-center"><i class="bi bi-link-45deg"></i><span class="flex-grow-1">URL aplikasi (GitHub Pages) belum diketahui, sehingga tautan pribadi WhatsApp belum bisa dibuat. Isi di Pengaturan → URL Aplikasi.</span><button class="btn btn-gold btn-sm" data-nav="pengaturan"><i class="bi bi-gear"></i> Isi URL Aplikasi</button></div>' : '') +
-    '<div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mt-3">' + (info.length ? '<div class="metode-info">' + info.join('') + '</div>' : '<span></span>') +
-    '<button type="button" class="btn btn-ghost btn-sm" data-action="previewMsg" data-id="' + esc((slips.find(s => s.sv === 'VALID') || slips[0] || {}).id || '') + '"><i class="bi bi-chat-square-text"></i> Pratinjau isi pesan</button></div></div>';
+  const base = slips.filter(s => s.sv !== 'KRITIS'), n = base.length, nEm = base.filter(s => kontakOk(s, 'email')).length;
+  const info = ['<span><i class="bi bi-file-earmark-pdf"></i> Slip dikirim sebagai <b>lampiran PDF</b> untuk diunduh pegawai</span>',
+    '<span><i class="bi bi-hourglass-split"></i> Sisa kuota surel hari ini: <b>' + (q < 0 ? 'tidak terbaca' : fmtNum(q)) + '</b></span>'];
+  if (uji) info.push('<span><i class="bi bi-cone-striped"></i> <b>Mode Uji</b>: semua surel dialihkan ke pemilik skrip</span>');
+  $('#pvMetode').innerHTML = '<div class="card-app mt-3"><div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3"><div><p class="eyebrow mb-1">Metode Pengiriman Slip</p><h3 class="mb-0">Dikirim lewat surel (Email)</h3></div>' + (running ? '<span class="chip chip-warn"><i class="bi bi-lock"></i> Pengiriman sedang berjalan</span>' : uji ? '<span class="chip chip-gold"><i class="bi bi-cone-striped"></i> Mode Uji</span>' : '') + '</div>' +
+    '<div class="metode-grid"><div class="metode-opt active" aria-current="true"><span class="m-ic"><i class="bi bi-envelope"></i></span><span class="m-txt"><b>Email</b><small>Slip PDF terlampir untuk diunduh · ' + nEm + '/' + n + ' surel valid</small></span><i class="bi bi-check-circle-fill m-check" aria-hidden="true"></i></div></div>' +
+    (nEm < n ? '<div class="alert-soft warn mt-3"><i class="bi bi-exclamation-triangle"></i> ' + (n - nEm) + ' pegawai belum punya surel yang valid. Perbaiki lewat tombol <b>Perbaiki Surel</b> di tabel agar slip mereka ikut terkirim.</div>' : '') +
+    '<div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mt-3"><div class="metode-info">' + info.join('') + '</div>' +
+    '<button type="button" class="btn btn-ghost btn-sm" data-action="previewMsg" data-id="' + esc((slips.find(s => s.sv === 'VALID') || slips[0] || {}).id || '') + '"><i class="bi bi-envelope-paper"></i> Pratinjau isi surel</button></div></div>';
 }
 /** Ubah teks berformat WhatsApp (*tebal*, _miring_, tautan) menjadi HTML aman. */
 function waFormat(t) {
@@ -816,7 +791,7 @@ function pickSlipPreview() {
 }
 function msgTab(tab) {
   $$('#msgModal [data-action="msgTab"]').forEach(b => { const on = b.dataset.id === tab; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
-  $('#msgEmail').hidden = tab !== 'email'; $('#msgWa').hidden = tab !== 'wa';
+  $('#msgEmail').hidden = false; $('#msgWa').hidden = true; // hanya surel
 }
 function renderMsgPreview(r, s) {
   const jam = new Date().toTimeString().slice(0, 5);
@@ -825,19 +800,13 @@ function renderMsgPreview(r, s) {
   const fr = $('#msgFrame');
   fr.onload = () => { try { fr.style.height = Math.max(420, fr.contentDocument.documentElement.scrollHeight + 8) + 'px'; } catch (e) { } };
   fr.srcdoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><base target="_blank"></head><body style="margin:0;padding:16px;background:#F3F5F4">' + r.html + '</body></html>';
-  $('#msgWa').innerHTML = '<div class="msg-head"><div><span>Kepada</span><b>' + esc(r.noWA ? fmtWA(r.noWA) : '(No. WA kosong)') + '</b></div><div><span>Format</span><span>Pesan teks: pemberitahuan + tautan pribadi ke akun pegawai — <b>tanpa nominal gaji & tanpa lampiran</b></span></div><div><span>Tautan</span><span>' + (r.akses === 'Sandi' ? 'Mengisi NRP, pegawai memasukkan kata sandi' : 'Langsung membuka slip di akun pegawai') + ' · berlaku ' + esc(r.masa) + ' hari · token unik per pegawai</span></div></div>' +
-    '<div class="wa-chat"><div class="wa-bubble">' + waFormat(r.wa) + '<span class="wa-time">' + jam + '</span></div></div>' +
-    '<p class="tiny text-muted-2 mt-2 mb-0"><i class="bi bi-info-circle"></i> Tautan di atas hanya contoh. Saat dikirim, setiap pegawai mendapat tautan pribadinya sendiri' + (r.url ? ' (' + esc(r.url) + '?s=…)' : '') + '.</p>';
-  $('#msgModalTitle').textContent = (s ? s.nama + ' · ' : '') + 'Pratinjau Pesan';
-  $('#msgMeta').textContent = 'Surel: ' + (r.rincian ? 'memuat rincian gaji & THP + PDF' : 'pemberitahuan + PDF') + ' · WhatsApp: pemberitahuan + tautan saja' + (r.modeUji ? ' · Mode Uji: dikirim ke penerima uji' : '');
+  $('#msgWa').innerHTML = '';
+  $('#msgModalTitle').textContent = (s ? s.nama + ' · ' : '') + 'Pratinjau Isi Surel';
+  $('#msgMeta').textContent = 'Surel: ' + (r.rincian ? 'memuat rincian gaji & THP + lampiran PDF' : 'pemberitahuan + lampiran PDF') + (r.modeUji ? ' · Mode Uji: dikirim ke pemilik skrip' : '');
 }
 function confirmDispatch() {
   const per = App.idx.per[App.ui.currentPeriode]; if (!per) return;
   const d = App.d, m = metodeNow(), kanal = kanalAktif(m), st = d.settingsFull || {};
-  if (kanal.indexOf('wa') >= 0 && !(d.waGateway || {}).ready) {
-    confirmBox({ title: 'Token WhatsApp belum diatur', sub: 'Metode ' + m, icon: 'bi-whatsapp', ok: 'Buka Pengaturan', body: '<p class="mb-0">Simpan token perangkat Fonnte di <b>Pengaturan → WhatsApp Gateway</b> terlebih dahulu, atau pilih metode <b>Email</b>.</p>' }).then(ok => { if (ok) navigateTo('pengaturan'); });
-    return;
-  }
   const slips = App.idx.slipsByPer[per.id] || [];
   const pend = slips.filter(s => kanalPerlu(s, m).length);
   const nE = pend.filter(s => kanalPerlu(s, m).indexOf('email') >= 0).length, nW = pend.filter(s => kanalPerlu(s, m).indexOf('wa') >= 0).length;
@@ -953,7 +922,7 @@ RENDER.progress = function () {
   $('#progFailures').innerHTML = st.failures && st.failures.length ? '<div class="card-app mt-3"><div class="card-head"><h3 class="text-danger"><i class="bi bi-exclamation-triangle"></i> Tercatat ' + st.failures.length + ' Kendala Transmisi</h3>' + (j.status === 'SELESAI' ? '<button class="btn btn-primary-app btn-sm" data-action="resendFailed"><i class="bi bi-arrow-repeat"></i> Kirim Ulang Semua yang Gagal</button>' : '<span class="chip chip-info">Kirim ulang tersedia setelah batch tuntas</span>') + '</div><div class="table-responsive"><table class="table-app compact" id="failTable"></table></div></div>' : '';
   if (st.failures && st.failures.length) renderTable('fail', $('#failTable'), null, [
     { h: 'NRP', r: x => '<span class="nrp">' + esc(x.nrp) + '</span>' }, { h: 'Nama', main: true, r: x => '<b>' + esc(x.nama) + '</b>' }, { h: 'Unit', r: x => unitPill(x.unit) }, { h: 'Kanal', r: x => chBadge(x.ch || 'email', 'Gagal', x.err) }, { h: 'Alasan', r: x => '<span class="small text-danger">' + esc(x.err) + '</span>' },
-    { h: 'Aksi', cls: 'actions', r: x => (x.ch === 'wa' ? (/Nomor|nomor/.test(x.err) ? '<button class="btn btn-ghost btn-xs" data-action="fixWA" data-id="' + esc(x.id) + '"><i class="bi bi-whatsapp"></i> Perbaiki No. WA</button> ' : '') : /surel/i.test(x.err) ? '<button class="btn btn-ghost btn-xs" data-action="fixEmail" data-id="' + esc(x.id) + '"><i class="bi bi-pencil"></i> Perbaiki Surel</button> ' : '') + '<button class="btn btn-ghost btn-xs" data-action="resendSlip" data-id="' + esc(x.id) + '"><i class="bi bi-arrow-repeat"></i> Kirim Ulang</button>' }
+    { h: 'Aksi', cls: 'actions', r: x => (x.ch === 'wa' ? '' : /surel/i.test(x.err) ? '<button class="btn btn-ghost btn-xs" data-action="fixEmail" data-id="' + esc(x.id) + '"><i class="bi bi-pencil"></i> Perbaiki Surel</button> ' : '') + '<button class="btn btn-ghost btn-xs" data-action="resendSlip" data-id="' + esc(x.id) + '"><i class="bi bi-arrow-repeat"></i> Kirim Ulang</button>' }
   ], st.failures, { size: 50 });
   $('#progActions').innerHTML =
     (j.status === 'BERJALAN' ? '<button class="btn btn-ghost" data-action="pauseJob"><i class="bi bi-pause-circle"></i> Jeda Eksekusi Sementara</button>' : (j.status === 'JEDA' || j.status === 'KUOTA') ? '<button class="btn btn-primary-app" data-action="resumeJob"><i class="bi bi-play-circle"></i> Lanjutkan Pengiriman</button>' : '') +
@@ -1124,6 +1093,241 @@ function downloadPegawaiTemplate(mode, list, fileName) {
   const stamp = new Date().toISOString().slice(0, 10);
   XLSX.writeFile(wb, fileName || ((mode === 'data' ? 'Data_Pegawai_' : 'Templat_Impor_Pegawai_') + stamp + '.xlsx'));
   if (!fileName) toast(mode === 'data' ? 'Data ' + rows.length + ' pegawai diunduh. Ubah lalu impor kembali.' : 'Templat impor pegawai diunduh.', 'success');
+}
+
+// ── UNDUH DATA PEGAWAI (Excel / PDF · per unit atau seluruh unit) ─────────
+// Dibuat di peramban dari data yang sudah dimuat (tanpa beban GAS). Admin Sekolah hanya unitnya sendiri.
+const JSPDF_URL = 'https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js';
+const AUTOTABLE_URL = 'https://cdn.jsdelivr.net/npm/jspdf-autotable@5.0.9/dist/jspdf.plugin.autotable.min.js';
+const __scripts = {};
+function loadScript(src) {
+  if (!__scripts[src]) __scripts[src] = new Promise((resolve, reject) => {
+    const el = document.createElement('script'); el.src = src; el.async = true;
+    el.onload = () => resolve();
+    el.onerror = () => { delete __scripts[src]; el.remove(); reject(new Error('Pustaka PDF gagal dimuat. Periksa koneksi internet lalu coba lagi.')); };
+    document.head.appendChild(el);
+  });
+  return __scripts[src];
+}
+async function ensurePdfLib() {
+  const lib = () => window.jspdf && window.jspdf.jsPDF;
+  if (!lib()) await loadScript(JSPDF_URL);
+  if (!lib()) { delete __scripts[JSPDF_URL]; throw new Error('Pustaka PDF tidak dapat dijalankan di peramban ini. Perbarui peramban atau gunakan format Excel.'); }
+  if (!lib().API.autoTable) await loadScript(AUTOTABLE_URL);
+  if (!lib().API.autoTable) { delete __scripts[AUTOTABLE_URL]; throw new Error('Pustaka tabel PDF gagal dimuat. Muat ulang halaman lalu coba lagi.'); }
+  return lib();
+}
+/** Kolom ekspor. y = hanya Admin Yayasan (data tidak dikirim ke Admin Sekolah) · t = teks di Excel · pdf = ikut PDF */
+function pegExportCols(isY) {
+  const tp = p => tanggalPensiun(p.TglLahir, jenisPegawai(p));
+  return [
+    { h: 'NRP', v: p => p.NRP, w: 14, t: 1, pdf: 1, pw: 19 },
+    { h: 'Nama Lengkap', v: p => p.Nama, w: 34, pdf: 1, pw: 44 },
+    { h: 'Unit', v: p => p.Unit, w: 9, unit: 1 },
+    { h: 'Jabatan', v: p => p.Jabatan || '', w: 24, pdf: 1, pw: 28 },
+    { h: 'Jenis Pegawai', ph: 'Jenis', v: p => jenisPegawai(p), w: 13, pdf: 1, pw: 14 },
+    { h: 'Status Kepegawaian', ph: 'Kepegawaian', v: p => p.StatusKepegawaian || '', w: 18, pdf: 1, pw: 19 },
+    { h: 'Golongan', ph: 'Gol.', v: p => p.Golongan || '', w: 10, y: 1, pdf: 1, pw: 9 },
+    { h: 'Tanggal Lahir', ph: 'Tgl. Lahir', v: p => ymdToDmy(p.TglLahir), w: 13, t: 1, y: 1, pdf: 1, pw: 16 },
+    { h: 'Usia', v: p => usia(p.TglLahir), w: 6, y: 1 },
+    { h: 'Tahun Masuk', ph: 'Masuk', v: p => p.TahunMasuk || '', w: 12, t: 1, pdf: 1, pw: 11 },
+    { h: 'Lama Kerja', v: p => lamaKerja(p.TahunMasuk), w: 18, pdf: 1, pw: 16 },
+    { h: 'Tanggal Pensiun', ph: 'Pensiun', v: p => ymdToDmy(tp(p)), w: 15, t: 1, y: 1, pdf: 1, pw: 16 },
+    { h: 'Email', v: p => p.Email || '', w: 32, pdf: 1 },
+    { h: 'No. WhatsApp', ph: 'No. WhatsApp', v: p => fmtWA(p.NoWA), w: 16, t: 1, pdf: 1, pw: 21 },
+    { h: 'Bank & No. Rekening', v: p => p.BankRekening || '', w: 22, t: 1, y: 1 },
+    { h: 'Status', v: p => p.Status || '', w: 10, pdf: 1, pw: 13 }
+  ].filter(c => isY || !c.y);
+}
+/** Data sesuai pilihan, urut unit (urutan resmi) lalu nama. */
+function pegExportList(unit, status) {
+  const order = {}; (App.d.units || []).forEach((u, i) => order[u] = i);
+  return (App.d.pegawai || []).filter(p => (!unit || p.Unit === unit) && (!status || p.Status === status))
+    .sort((a, b) => ((order[a.Unit] ?? 99) - (order[b.Unit] ?? 99)) || String(a.Nama).localeCompare(String(b.Nama), 'id', { numeric: true, sensitivity: 'base' }));
+}
+const tglPanjang = d => d.getDate() + ' ' + BULAN[d.getMonth()] + ' ' + d.getFullYear();
+const pegStatusLabel = s => s === 'Aktif' ? 'Pegawai aktif' : s === 'Nonaktif' ? 'Pegawai nonaktif' : 'Aktif & nonaktif';
+const pegFileName = (unit, status, ext) => 'Data_Pegawai_' + (unit || 'Seluruh_Unit').replace(/\W+/g, '_') + (status ? '_' + status : '') + '_' + new Date().toISOString().slice(0, 10) + '.' + ext;
+function pegRekap(list, units) {
+  const guru = p => jenisPegawai(p) === 'Guru';
+  return units.map(u => { const a = list.filter(p => p.Unit === u); return [u, App.d.unitNames[u] || u, a.filter(guru).length, a.filter(p => !guru(p)).length, a.filter(p => p.Status === 'Aktif').length, a.filter(p => p.Status !== 'Aktif').length, a.length]; });
+}
+
+function pegExportDialog(fmt) {
+  const d = App.d, isY = App.role === ROLE.Y;
+  if (!isY && App.role !== ROLE.S) return;
+  const units = isY ? d.units : [App.user.unit];
+  const curU = isY ? ($('#pegUnit').value || '') : App.user.unit, curS = $('#pegStatus').value || '';
+  const opt = (v, label, cur) => '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + '>' + esc(label) + '</option>';
+  const fmtOpt = (v, icon, title, sub) => '<label class="check-row"><input type="radio" name="format" value="' + v + '"' + (v === fmt ? ' checked' : '') + '><i class="bi ' + icon + '"></i><span><b>' + title + '</b><small>' + sub + '</small></span></label>';
+  openForm({
+    title: 'Unduh Data Pegawai', submit: 'Unduh',
+    body: '<div class="row g-3">' +
+      '<div class="col-md-7"><label class="form-label" for="exUnit">Unit</label><select id="exUnit" name="unit" class="form-select"' + (isY ? '' : ' disabled') + '>' +
+        (isY ? opt('', 'Seluruh Unit (' + units.length + ' unit)', curU) : '') + units.map(u => opt(u, (d.unitNames[u] || u) + ' (' + u + ')', curU)).join('') + '</select>' +
+        (isY ? '' : '<div class="tiny text-muted-2 mt-1">Admin Sekolah hanya dapat mengunduh data unitnya sendiri.</div>') + '</div>' +
+      '<div class="col-md-5"><label class="form-label" for="exStatus">Status</label><select id="exStatus" name="status" class="form-select">' +
+        opt('', 'Aktif & Nonaktif', curS) + opt('Aktif', 'Aktif saja', curS) + opt('Nonaktif', 'Nonaktif saja', curS) + '</select></div>' +
+      '<div class="col-12"><span class="form-label d-block">Format</span><div class="ex-fmt">' +
+        fmtOpt('xlsx', 'bi-file-earmark-excel', 'Excel (.xlsx)', 'Bisa difilter, diolah & dicetak ulang') +
+        fmtOpt('pdf', 'bi-file-earmark-pdf', 'PDF', 'Siap cetak · A4 mendatar · kop yayasan') + '</div></div>' +
+      '<div class="col-12"><div class="alert-soft info small mb-0" id="exInfo" aria-live="polite"></div></div></div>',
+    onOpen: form => {
+      const upd = () => {
+        const u = isY ? $('#exUnit').value : App.user.unit, s = $('#exStatus').value, f = (form.querySelector('[name=format]:checked') || {}).value || 'xlsx';
+        const n = pegExportList(u, s).length;
+        const isi = !n ? '<span class="text-danger"><i class="bi bi-exclamation-circle"></i> Tidak ada pegawai sesuai pilihan.</span>'
+          : '<i class="bi bi-people"></i> <b>' + fmtNum(n) + ' pegawai</b> akan diunduh' + (u ? ' dari ' + esc(d.unitNames[u] || u) : ' dari seluruh unit') + '.' +
+            (!u ? (f === 'pdf' ? ' Halaman pertama berisi rekap per unit, lalu tiap unit dimulai di halaman baru.' : ' Berisi lembar Rekap, Seluruh Unit, dan satu lembar per unit.') : '') +
+            (isY && f === 'pdf' ? '<div class="tiny text-muted-2 mt-1">Nomor rekening tidak dicetak di PDF. Gunakan Excel bila diperlukan.</div>' : '');
+        $('#exInfo').innerHTML = isi + '<div class="tiny text-muted-2 mt-1"><i class="bi bi-shield-lock"></i> Berkas memuat data pribadi pegawai. Simpan dengan aman dan jangan disebarkan.</div>';
+      };
+      form.addEventListener('change', upd); upd();
+    },
+    onSubmit: async data => {
+      const unit = isY ? (data.unit || '') : App.user.unit, status = data.status || '', format = data.format === 'pdf' ? 'pdf' : 'xlsx';
+      const list = pegExportList(unit, status);
+      if (!list.length) throw new Error('Tidak ada pegawai sesuai pilihan.');
+      const o = { unit: unit, status: status, isY: isY, units: unit ? [unit] : d.units };
+      if (format === 'pdf') await exportPegawaiPdf(list, o); else exportPegawaiXlsx(list, o);
+      apiSilent('apiCatatUnduhPegawai', { format: format, unit: unit, status: status, jumlah: list.length }).catch(() => { });
+      toast('Data ' + fmtNum(list.length) + ' pegawai diunduh (' + (format === 'pdf' ? 'PDF' : 'Excel') + ').', 'success');
+    }
+  });
+}
+
+function exportPegawaiXlsx(list, o) {
+  if (!window.XLSX) throw new Error('Pustaka Excel masih dimuat, coba sesaat lagi.');
+  const d = App.d, st = d.settings || {};
+  const cols = pegExportCols(o.isY), head = ['No'].concat(cols.map(c => c.h));
+  const judul = 'DATA PEGAWAI — ' + String(st.namaYayasan || st.singkatan || 'YASMA PB. Soedirman').toUpperCase();
+  const per = 'Per ' + tglPanjang(new Date()), stLabel = pegStatusLabel(o.status);
+  const wb = XLSX.utils.book_new();
+  const merge = (r, n) => ({ s: { r: r, c: 0 }, e: { r: r, c: n - 1 } });
+  const addSheet = (name, label, rows) => {
+    const aoa = [[judul], [label + ' · ' + stLabel + ' · ' + per + ' · ' + rows.length + ' pegawai'], [], head]
+      .concat(rows.map((p, i) => [i + 1].concat(cols.map(c => { const v = c.v(p); return v === undefined || v === null ? '' : v; }))));
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    cols.forEach((c, ci) => { if (!c.t) return; for (let r = 4; r < aoa.length; r++) { const cell = ws[XLSX.utils.encode_cell({ r: r, c: ci + 1 })]; if (cell) { cell.t = 's'; cell.v = String(cell.v); cell.z = '@'; } } });
+    ws['!cols'] = [{ wch: 5 }].concat(cols.map(c => ({ wch: c.w })));
+    ws['!merges'] = [merge(0, head.length), merge(1, head.length)];
+    ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 3, c: 0 }, e: { r: 3 + Math.max(1, rows.length), c: head.length - 1 } }) };
+    XLSX.utils.book_append_sheet(wb, ws, name.slice(0, 31));
+  };
+  if (!o.unit) {
+    const rk = pegRekap(list, o.units), tot = [2, 3, 4, 5, 6].map(i => rk.reduce((a, r) => a + r[i], 0));
+    const rh = ['Kode', 'Nama Unit', 'Guru', 'Karyawan', 'Aktif', 'Nonaktif', 'Jumlah'];
+    const ws = XLSX.utils.aoa_to_sheet([[judul], ['Rekap per unit · ' + stLabel + ' · ' + per], [], rh].concat(rk).concat([['', 'TOTAL'].concat(tot)]));
+    ws['!cols'] = [{ wch: 11 }, { wch: 32 }, { wch: 9 }, { wch: 10 }, { wch: 9 }, { wch: 10 }, { wch: 9 }];
+    ws['!merges'] = [merge(0, rh.length), merge(1, rh.length)];
+    XLSX.utils.book_append_sheet(wb, ws, 'Rekap');
+    addSheet('Seluruh Unit', 'Seluruh unit (' + o.units.length + ' unit)', list);
+    o.units.forEach(u => addSheet(u, 'Unit ' + (d.unitNames[u] || u) + ' (' + u + ')', list.filter(p => p.Unit === u)));
+  } else {
+    addSheet(o.unit, 'Unit ' + (d.unitNames[o.unit] || o.unit) + ' (' + o.unit + ')', list);
+  }
+  XLSX.writeFile(wb, pegFileName(o.unit, o.status, 'xlsx'));
+}
+
+/** Teks aman untuk font standar PDF (Latin-1). */
+const pdfTxt = v => String(v === undefined || v === null ? '' : v).replace(/[–—−]/g, '-').replace(/[‘’‛]/g, "'").replace(/[“”]/g, '"').replace(/…/g, '...').replace(/[•‧]/g, '·').replace(/[^\x09\x0A\x0D\x20-\x7E\xA0-\xFF]/g, '?');
+async function pdfLogo(src) {
+  src = String(src || '');
+  const fmtOf = u => /^data:image\/png/i.test(u) ? 'PNG' : /^data:image\/jpe?g/i.test(u) ? 'JPEG' : '';
+  if (fmtOf(src)) return { data: src, fmt: fmtOf(src) };
+  if (!/^https?:\/\//i.test(src)) return null;
+  try { // logo dari URL: hanya bila server mengizinkan CORS
+    const blob = await (await fetch(src, { mode: 'cors' })).blob();
+    const uri = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
+    return fmtOf(uri) ? { data: uri, fmt: fmtOf(uri) } : null;
+  } catch (e) { return null; }
+}
+async function exportPegawaiPdf(list, o) {
+  const JsPDF = await ensurePdfLib();
+  const d = App.d, st = d.settings || {};
+  const doc = new JsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
+  const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 10, TOP = 31;
+  const GREEN = [30, 77, 54], GOLD = [217, 165, 32], MUTED = [95, 105, 100];
+  const logo = await pdfLogo(st.logo);
+  const yayasan = pdfTxt(st.namaYayasan || st.singkatan || 'YASMA PB. Soedirman');
+  const now = new Date(), stLabel = pegStatusLabel(o.status);
+  const cols = pegExportCols(o.isY).filter(c => c.pdf);
+  doc.setProperties({ title: 'Data Pegawai - ' + yayasan, subject: 'Data Pegawai', creator: 'Portal Slip Gaji ' + pdfTxt(st.singkatan || '') });
+
+  const guruN = a => a.filter(p => jenisPegawai(p) === 'Guru').length;
+  const ringkas = a => fmtNum(a.length) + ' pegawai  ·  ' + guruN(a) + ' guru, ' + (a.length - guruN(a)) + ' karyawan  ·  ' + a.filter(p => p.Status === 'Aktif').length + ' aktif, ' + a.filter(p => p.Status !== 'Aktif').length + ' nonaktif';
+  const at = opts => doc.autoTable(Object.assign({ margin: { top: TOP, left: M, right: M, bottom: 13 }, theme: 'grid' }, opts));
+  const tabelPegawai = (rows, startY) => at({
+    startY: startY,
+    head: [['No'].concat(cols.map(c => pdfTxt(c.ph || c.h)))],
+    body: rows.map((p, i) => [i + 1].concat(cols.map(c => pdfTxt(c.v(p))))),
+    styles: { font: 'helvetica', fontSize: 7, cellPadding: { top: 1.3, bottom: 1.3, left: 1.2, right: 1.2 }, lineColor: [214, 222, 217], lineWidth: 0.15, textColor: [33, 37, 41], valign: 'middle', overflow: 'linebreak' },
+    headStyles: { fillColor: GREEN, textColor: 255, fontStyle: 'bold', fontSize: 7, halign: 'left' },
+    alternateRowStyles: { fillColor: [245, 249, 246] },
+    columnStyles: Object.assign({ 0: { cellWidth: 8, halign: 'right' } }, ...cols.map((c, i) => c.pw ? { [i + 1]: { cellWidth: c.pw } } : {})),
+    didParseCell: h => {
+      if (h.section !== 'body') return;
+      const p = rows[h.row.index];
+      if (p && p.Status !== 'Aktif') h.cell.styles.textColor = [150, 150, 150];
+      if (h.column.index === 1) h.cell.styles.font = 'courier';
+    }
+  });
+  const judul = (txt, sub, y) => {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(...GREEN); doc.text(pdfTxt(txt), W / 2, y, { align: 'center' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...MUTED); doc.text(pdfTxt(sub), W / 2, y + 5.5, { align: 'center' });
+  };
+  const subJudul = (txt, info, y) => {
+    doc.setFillColor(...GREEN); doc.rect(M, y - 4.2, 1.4, 5.6, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); doc.setTextColor(...GREEN); doc.text(pdfTxt(txt), M + 3.5, y);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...MUTED); doc.text(pdfTxt(info), W - M, y, { align: 'right' });
+  };
+
+  const unitNama = u => (d.unitNames[u] || u) + ' (' + u + ')';
+  judul('DATA PEGAWAI', (o.unit ? '' : 'Seluruh Unit  ·  ') + stLabel + '  ·  Per ' + tglPanjang(now), TOP + 3);
+  if (!o.unit) {
+    const rk = pegRekap(list, o.units), tot = [2, 3, 4, 5, 6].map(i => rk.reduce((a, r) => a + r[i], 0));
+    subJudul('Rekap per Unit', ringkas(list), TOP + 17);
+    at({
+      startY: TOP + 20, head: [['Kode', 'Nama Unit', 'Guru', 'Karyawan', 'Aktif', 'Nonaktif', 'Jumlah']],
+      body: rk.map(r => r.map(pdfTxt)), foot: [['', 'TOTAL'].concat(tot.map(String))], showFoot: 'lastPage',
+      styles: { fontSize: 8.5, cellPadding: 1.8, lineColor: [214, 222, 217], lineWidth: 0.15, textColor: [33, 37, 41] },
+      headStyles: { fillColor: GREEN, textColor: 255, fontStyle: 'bold' }, footStyles: { fillColor: [232, 240, 235], textColor: GREEN, fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 22, font: 'courier' }, 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' }, 6: { halign: 'right', fontStyle: 'bold' } },
+      tableWidth: 170, margin: { top: TOP, left: (W - 170) / 2, right: (W - 170) / 2, bottom: 13 },
+      didParseCell: h => { if (h.column.index >= 2) h.cell.styles.halign = 'right'; }
+    });
+    o.units.forEach(u => {
+      const rows = list.filter(p => p.Unit === u);
+      if (!rows.length) return;
+      doc.addPage();
+      subJudul('Unit ' + unitNama(u), ringkas(rows), TOP + 4);
+      tabelPegawai(rows, TOP + 7);
+    });
+  } else {
+    subJudul('Unit ' + unitNama(o.unit), ringkas(list), TOP + 17);
+    tabelPegawai(list, TOP + 20);
+  }
+
+  // Kop & kaki halaman di setiap halaman
+  const n = doc.getNumberOfPages();
+  const dicetak = 'Dicetak ' + tglPanjang(now) + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ' WIB oleh ' + (App.user.nama || App.user.id || '-');
+  for (let i = 1; i <= n; i++) {
+    doc.setPage(i);
+    let x = M;
+    if (logo) { try { doc.addImage(logo.data, logo.fmt, M, 7, 15, 15, 'logo', 'FAST'); x = M + 18.5; } catch (e) { } }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(13.5); doc.setTextColor(...GREEN); doc.text(yayasan, x, 13.2);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...MUTED);
+    const kontak = [st.telepon ? 'Telp. ' + st.telepon : '', st.email ? st.email : ''].filter(Boolean).join('   ·   ');
+    doc.text(pdfTxt('Data Pegawai Guru & Tenaga Kependidikan' + (kontak ? '   ·   ' + kontak : '')), x, 18.6);
+    doc.setDrawColor(...GREEN); doc.setLineWidth(0.7); doc.line(M, 24, W - M, 24);
+    doc.setDrawColor(...GOLD); doc.setLineWidth(0.3); doc.line(M, 25.3, W - M, 25.3);
+    doc.setDrawColor(214, 222, 217); doc.setLineWidth(0.2); doc.line(M, H - 9.5, W - M, H - 9.5);
+    doc.setFontSize(7); doc.setTextColor(...MUTED);
+    doc.text(pdfTxt(dicetak), M, H - 6);
+    doc.text('Dokumen internal - memuat data pribadi pegawai', W / 2, H - 6, { align: 'center' });
+    doc.text('Halaman ' + i + ' dari ' + n, W - M, H - 6, { align: 'right' });
+  }
+  downloadBlob(doc.output('blob'), pegFileName(o.unit, o.status, 'pdf'));
 }
 
 /**
@@ -1374,7 +1578,7 @@ RENDER.monitoring = function () {
   const pl = d.periode.filter(p => p.status !== 'Draft');
   periodeOptions(ps, pl, App.ui.monPer && App.idx.per[App.ui.monPer] ? App.ui.monPer : (pl[0] || {}).id);
   const per = App.idx.per[ps.value];
-  $('#monTitle').textContent = isY ? 'Monitoring Unit — ' + (d.unitNames[unit] || unit) : 'Dasbor Pemantauan Slip Gaji Unit ' + unit;
+  $('#monTitle').textContent = isY ? 'Monitoring Unit — ' + (d.unitNames[unit] || unit) : 'Dasbor Pemantauan Slip Gaji — ' + (d.unitNames[unit] || unit);
   $('#monScope').textContent = '· ' + (d.unitNames[unit] || unit).toUpperCase();
   $('#monPolicy').hidden = isY; $('#monIsoUnit').textContent = unit + ' SAJA';
   const pegU = d.pegawai.filter(p => p.Unit === unit);
@@ -1386,7 +1590,7 @@ RENDER.monitoring = function () {
   const dilihat = slips.filter(s => s.lihat || downloads.has(s.nrp)).length; // dibuka via tautan WhatsApp / portal / unduh
   $('#monKpi').innerHTML = kpi('Total Guru & Tendik', pegU.length + ' <small>Pegawai</small>', 'bi-people', '<span>' + pegU.filter(p => /GTY|Tetap/.test(p.StatusKepegawaian)).length + ' tetap · ' + pegU.filter(p => !/GTY|Tetap/.test(p.StatusKepegawaian)).length + ' non-tetap</span>') +
     kpi('Slip Terkirim (' + (per ? BLN3[per.bulan - 1] + ' ' + per.tahun : '-') + ')', c.terkirim + ' <small>/ ' + c.total + ' Slip</small>', 'bi-send-check', '<div class="k-bar w-100"><span style="width:' + pct(c.terkirim, c.total) + '%"></span></div><span class="status ok">' + pct(c.terkirim, c.total) + '% sukses</span>') +
-    kpi('Slip Sudah Dilihat', dilihat + ' <small>/ ' + c.terkirim + ' Pegawai</small>', 'bi-eye', '<div class="k-bar w-100"><span style="width:' + pct(dilihat, c.terkirim) + '%"></span></div><span>Dibuka via tautan WhatsApp / portal</span><span>Belum: <b>' + Math.max(0, c.terkirim - dilihat) + '</b></span>') +
+    kpi('Slip Sudah Dilihat', dilihat + ' <small>/ ' + c.terkirim + ' Pegawai</small>', 'bi-eye', '<div class="k-bar w-100"><span style="width:' + pct(dilihat, c.terkirim) + '%"></span></div><span>Dibuka via tautan surel / portal</span><span>Belum: <b>' + Math.max(0, c.terkirim - dilihat) + '</b></span>') +
     kpi('Butuh Tindakan / Kendala', String(c.gagal + locked.length).padStart(2, '0') + ' <small>Kasus</small>', 'bi-exclamation-triangle', '<span>' + c.gagal + ' gagal kirim + ' + locked.length + ' akun terkunci</span>', (c.gagal + locked.length) ? 'alert' : '');
   // Tren 6 periode
   const hist = pl.slice(0, 6).reverse();
@@ -1399,7 +1603,7 @@ RENDER.monitoring = function () {
   // Kendala
   const kend = slips.filter(s => s.sk === 'Gagal').map(s => ({ t: 'mail', s: s })).concat(locked.map(a => ({ t: 'lock', a: a })));
   $('#monActions').innerHTML = kend.length ? '<div class="d-flex justify-content-between align-items-center mb-2"><h3 class="text-danger"><i class="bi bi-exclamation-octagon"></i> Tindakan Diperlukan Unit (' + kend.length + ' Kendala Aktif)</h3><span class="chip chip-danger">SLA Penanganan Hari Ini</span></div><div class="row g-3">' + kend.slice(0, 6).map((k, i) => k.t === 'mail' ?
-    '<div class="col-md-6"><div class="kendala bad"><div class="kh"><span class="lbl">KENDALA ' + String(i + 1).padStart(2, '0') + ' // ' + (k.s.sw === 'Gagal' && k.s.se !== 'Gagal' ? 'WHATSAPP GAGAL' : 'EMAIL BOUNCE') + '</span><span>' + (k.s.sw === 'Gagal' && k.s.se !== 'Gagal' ? 'Gateway' : 'SMTP') + '</span></div><b>' + esc(k.s.nama) + '</b><div class="small mono">NRP ' + esc(k.s.nrp) + '</div><div class="small mt-2"><b class="text-danger">Penyebab:</b> ' + esc(k.s.err) + (k.s.se === 'Gagal' ? ' (' + esc(k.s.email) + ')' : '') + '</div><div class="d-flex gap-2 mt-2 flex-wrap">' + (isY ? (k.s.sw === 'Gagal' ? '<button class="btn btn-primary-app btn-xs" data-action="fixWA" data-id="' + esc(k.s.id) + '"><i class="bi bi-whatsapp"></i> Perbarui No. WA</button>' : '') + (k.s.se === 'Gagal' ? '<button class="btn btn-primary-app btn-xs" data-action="fixEmail" data-id="' + esc(k.s.id) + '"><i class="bi bi-pencil"></i> Perbarui Surel & Kirim Ulang</button>' : '') : '<a class="btn btn-primary-app btn-xs" target="_blank" rel="noopener" href="https://wa.me/' + esc(d.settings.wa) + '?text=' + encodeURIComponent('Koreksi kontak slip NRP ' + k.s.nrp + ' (' + k.s.nama + '): ' + k.s.err) + '"><i class="bi bi-whatsapp"></i> Lapor ke Yayasan</a>') + '</div></div></div>' :
+    '<div class="col-md-6"><div class="kendala bad"><div class="kh"><span class="lbl">KENDALA ' + String(i + 1).padStart(2, '0') + ' // ' + (k.s.sw === 'Gagal' && k.s.se !== 'Gagal' ? 'WHATSAPP GAGAL' : 'EMAIL BOUNCE') + '</span><span>' + (k.s.sw === 'Gagal' && k.s.se !== 'Gagal' ? 'Gateway' : 'SMTP') + '</span></div><b>' + esc(k.s.nama) + '</b><div class="small mono">NRP ' + esc(k.s.nrp) + '</div><div class="small mt-2"><b class="text-danger">Penyebab:</b> ' + esc(k.s.err) + (k.s.se === 'Gagal' ? ' (' + esc(k.s.email) + ')' : '') + '</div><div class="d-flex gap-2 mt-2 flex-wrap">' + (isY ? (k.s.se === 'Gagal' ? '<button class="btn btn-primary-app btn-xs" data-action="fixEmail" data-id="' + esc(k.s.id) + '"><i class="bi bi-pencil"></i> Perbarui Surel & Kirim Ulang</button>' : '') : '<a class="btn btn-primary-app btn-xs" target="_blank" rel="noopener" href="https://wa.me/' + esc(d.settings.wa) + '?text=' + encodeURIComponent('Koreksi kontak slip NRP ' + k.s.nrp + ' (' + k.s.nama + '): ' + k.s.err) + '"><i class="bi bi-whatsapp"></i> Lapor ke Yayasan</a>') + '</div></div></div>' :
     '<div class="col-md-6"><div class="kendala warn"><div class="kh"><span class="lbl">KENDALA ' + String(i + 1).padStart(2, '0') + ' // AKUN TERKUNCI</span><span>Security Lockout (5x gagal)</span></div><b>' + esc(k.a.nama) + '</b><div class="small mono">NRP ' + esc(k.a.id) + '</div><div class="small mt-2"><b>Penyebab:</b> salah sandi/PIN 5 kali berturut-turut. Terkunci s/d ' + fmtDate(k.a.kunci, true) + '.</div><div class="d-flex gap-2 mt-2 flex-wrap"><button class="btn btn-primary-app btn-xs" data-action="unlock" data-id="' + esc(k.a.id) + '"><i class="bi bi-unlock"></i> Buka Kunci</button><button class="btn btn-ghost btn-xs" data-action="resetPass" data-id="' + esc(k.a.id) + '"><i class="bi bi-key"></i> Reset Sandi</button>' + waLink((App.idx.peg[k.a.id] || {}).NoWA, 'Assalamu\'alaikum, akun portal slip gaji Anda terkunci. Silakan hubungi TU untuk pemulihan.') + '</div></div></div>').join('') + '</div>' : '';
   // Tabel
   const sMap = {}; slips.forEach(s => sMap[s.nrp] = s);
@@ -1411,7 +1615,7 @@ RENDER.monitoring = function () {
     { h: 'Transmisi', r: p => { const s = sMap[p.NRP]; return s ? statusKanal(s) + (s.tk ? '<div class="tiny text-muted-2">' + fmtDate(s.tk, true) + '</div>' : '') : '<span class="tiny text-muted-3">Tidak ada slip</span>'; } },
     { h: 'Akses Portal', r: p => { const a = App.idx.akun[String(p.NRP).toLowerCase()] || {}; return a.kunci ? '<span class="status gold"><i class="bi bi-lock"></i> Terkunci</span>' : a.login ? '<span class="tiny">Login ' + fmtDate(a.login, true) + '</span>' : '<span class="tiny text-muted-3">Belum pernah login</span>'; } },
     { h: 'Dilihat Pegawai', r: p => { const s = sMap[p.NRP]; return s && s.lihat ? '<span class="status ok"><i class="bi bi-eye"></i> Dilihat</span><div class="tiny text-muted-2 mt-1">' + fmtDate(s.lihat, true) + (s.nl ? ' · via tautan' : '') + '</div>' : downloads.has(p.NRP) ? '<span class="status ok">✓ Diunduh</span>' : s && s.sk === 'Terkirim' ? '<span class="tiny text-muted-3">Belum dibuka</span>' : '<span class="tiny text-muted-3">-</span>'; } },
-    { h: 'Aksi TU', cls: 'actions', r: p => { const s = sMap[p.NRP], a = App.idx.akun[String(p.NRP).toLowerCase()] || {}; const wa = waLink(p.NoWA, 'Assalamu\'alaikum ' + p.Nama + ', '); if (a.kunci) return '<button class="btn btn-gold btn-xs" data-action="unlock" data-id="' + esc(p.NRP) + '">Reset/Buka</button>'; if (s && s.sk === 'Gagal') { const w = s.sw === 'Gagal' && s.se !== 'Gagal'; return isY ? '<button class="btn btn-danger-soft btn-xs" data-action="' + (w ? 'fixWA' : 'fixEmail') + '" data-id="' + esc(s.id) + '">' + (w ? 'Koreksi No. WA' : 'Koreksi Surel') + '</button>' : '<span class="status bad">Lapor Yayasan</span>'; } return wa + ' <button class="btn btn-ghost btn-xs" data-action="auditFor" data-id="' + esc(p.NRP) + '">Detail Log</button>'; } }
+    { h: 'Aksi TU', cls: 'actions', r: p => { const s = sMap[p.NRP], a = App.idx.akun[String(p.NRP).toLowerCase()] || {}; const wa = waLink(p.NoWA, 'Assalamu\'alaikum ' + p.Nama + ', '); if (a.kunci) return '<button class="btn btn-gold btn-xs" data-action="unlock" data-id="' + esc(p.NRP) + '">Reset/Buka</button>'; if (s && s.se === 'Gagal') { const w = false; /* WhatsApp dinonaktifkan */ return isY ? '<button class="btn btn-danger-soft btn-xs" data-action="' + (w ? 'fixWA' : 'fixEmail') + '" data-id="' + esc(s.id) + '">' + (w ? 'Koreksi No. WA' : 'Koreksi Surel') + '</button>' : '<span class="status bad">Lapor Yayasan</span>'; } return wa + ' <button class="btn btn-ghost btn-xs" data-action="auditFor" data-id="' + esc(p.NRP) + '">Detail Log</button>'; } }
   ], pegU.sort((a, b) => ((sMap[b.NRP] || {}).sk === 'Gagal') - ((sMap[a.NRP] || {}).sk === 'Gagal') || a.Nama.localeCompare(b.Nama)), { rowCls: p => (sMap[p.NRP] || {}).sk === 'Gagal' ? 'row-bad' : (App.idx.akun[String(p.NRP).toLowerCase()] || {}).kunci ? 'row-warn' : '' });
 };
 
@@ -1455,12 +1659,12 @@ RENDER.portal = function () {
     helpCard();
   const ps = $('#portalSearch'); ps.oninput = debounce(() => { f.q = ps.value.trim().toLowerCase(); const pos = ps.selectionStart; RENDER.portal(); const n = $('#portalSearch'); n.focus(); n.setSelectionRange(pos, pos); }, 250);
 };
-/** Info untuk pegawai yang masuk lewat tautan pribadi WhatsApp (dan ajakan aktivasi akun bila belum pernah login). */
+/** Info untuk pegawai yang masuk lewat tautan pribadi di surel (dan ajakan aktivasi akun bila belum pernah login). */
 function linkBanner() {
   const u = App.user || {};
   if (u.via !== 'tautan') return '';
-  if (u.aktivasi) return '<div class="link-note mb-3 flex-wrap"><i class="bi bi-person-check"></i><div class="flex-grow-1"><b>Anda masuk lewat tautan pribadi WhatsApp.</b><div class="small">Akun Anda belum diaktifkan. Buat kata sandi & PIN dokumen agar bisa masuk langsung ke Portal Pegawai kapan saja (tanpa tautan) dan mengunduh slip PDF.</div></div><button class="btn btn-primary-app btn-sm" data-nav="keamanan"><i class="bi bi-shield-lock"></i> Aktifkan Akun</button></div>';
-  return '<div class="link-note mb-3"><i class="bi bi-whatsapp"></i><div><b>Anda masuk lewat tautan pribadi WhatsApp.</b><div class="small">Lain kali Anda juga bisa masuk langsung dengan NRP & kata sandi. Jangan teruskan tautan ini kepada orang lain.</div></div></div>';
+  if (u.aktivasi) return '<div class="link-note mb-3 flex-wrap"><i class="bi bi-person-check"></i><div class="flex-grow-1"><b>Anda masuk lewat tautan pribadi dari surel.</b><div class="small">Akun Anda belum diaktifkan. Buat kata sandi & PIN dokumen agar bisa masuk langsung ke Portal Pegawai kapan saja (tanpa tautan) dan mengunduh slip PDF.</div></div><button class="btn btn-primary-app btn-sm" data-nav="keamanan"><i class="bi bi-shield-lock"></i> Aktifkan Akun</button></div>';
+  return '<div class="link-note mb-3"><i class="bi bi-envelope-open"></i><div><b>Anda masuk lewat tautan pribadi dari surel.</b><div class="small">Lain kali Anda juga bisa masuk langsung dengan NRP & kata sandi. Jangan teruskan tautan ini kepada orang lain.</div></div></div>';
 }
 /** Kartu dasbor pegawai: Tahun Masuk & Lama Kerja, Tanggal Pensiun, No. WhatsApp */
 function infoKepegawaian(prof) {
@@ -1612,7 +1816,7 @@ RENDER.keamanan = function () {
   $('#pwSuccess').hidden = true; $('#pwForm').hidden = false;
   const needPin = u.role === ROLE.P && !u.hasPin;
   const bebas = !!(u.mustChange || u.aktivasi); // tanpa kata sandi lama
-  $('#mustChangeNote').innerHTML = u.aktivasi ? '<div class="link-note mb-3"><i class="bi bi-person-check"></i><div><b>Aktivasi akun Portal Pegawai</b><div class="small">Anda masuk lewat tautan pribadi WhatsApp dan akun ini belum pernah diaktifkan. Buat kata sandi baru' + (needPin ? ' dan PIN dokumen' : '') + ' — setelah itu Anda dapat masuk langsung dengan NRP & kata sandi kapan saja, tanpa tautan.</div></div></div>' : u.mustChange ?'<div class="card-app mb-3" style="border-left:4px solid var(--gold)"><div class="d-flex justify-content-between flex-wrap gap-2"><span class="mono tiny">AUDIT: LOG-SEC-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '</span><span class="status gold">Wajib</span></div><p class="mb-0 mt-2 small"><i class="bi bi-info-circle"></i> Anda masuk dengan <b>kata sandi sementara</b> yang dibuat Tata Usaha. Buat kata sandi baru' + (needPin ? ' dan PIN dokumen' : '') + ' untuk melanjutkan.</p></div>'
+  $('#mustChangeNote').innerHTML = u.aktivasi ? '<div class="link-note mb-3"><i class="bi bi-person-check"></i><div><b>Aktivasi akun Portal Pegawai</b><div class="small">Anda masuk lewat tautan pribadi dari surel dan akun ini belum pernah diaktifkan. Buat kata sandi baru' + (needPin ? ' dan PIN dokumen' : '') + ' — setelah itu Anda dapat masuk langsung dengan NRP & kata sandi kapan saja, tanpa tautan.</div></div></div>' : u.mustChange ?'<div class="card-app mb-3" style="border-left:4px solid var(--gold)"><div class="d-flex justify-content-between flex-wrap gap-2"><span class="mono tiny">AUDIT: LOG-SEC-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '</span><span class="status gold">Wajib</span></div><p class="mb-0 mt-2 small"><i class="bi bi-info-circle"></i> Anda masuk dengan <b>kata sandi sementara</b> yang dibuat Tata Usaha. Buat kata sandi baru' + (needPin ? ' dan PIN dokumen' : '') + ' untuk melanjutkan.</p></div>'
     : needPin ? '<div class="card-app mb-3" style="border-left:4px solid var(--gold)"><p class="mb-0 small"><i class="bi bi-file-earmark-lock"></i> <b>Buat PIN dokumen</b> untuk dapat mengunduh slip gaji PDF. Cukup isi kata sandi saat ini dan PIN baru — kata sandi tidak perlu diganti.</p></div>' : '';
   $('#pwIdentity').innerHTML = '<div class="profile-card"><span class="profile-av">' + esc(initials(u.nama)) + '</span><div class="min-w-0"><h2 class="h5 fw-bold mb-1">' + esc(u.nama) + '</h2><div class="d-flex gap-2 flex-wrap align-items-center"><span class="nrp">' + esc(u.nrp ? 'NRP ' + u.nrp : 'ID ' + u.id) + '</span><span class="small text-muted-2">' + esc(prof.Jabatan || (u.role === ROLE.Y ? 'Admin Yayasan' : u.role === ROLE.S ? 'Admin Sekolah' : '')) + '</span></div><div class="small mt-1">Unit: <b>' + esc(prof.UnitNama || (App.d && App.d.unitNames && App.d.unitNames[u.unit]) || u.unit || 'Yayasan Pusat') + '</b></div><div class="d-flex gap-2 flex-wrap mt-2"><span class="status ' + (bebas ? 'warn' : 'ok') + '"><i class="bi bi-key"></i> ' + (u.aktivasi ? 'Belum diaktifkan' : u.mustChange ? 'Sandi sementara' : 'Sandi aktif') + '</span>' + (u.role === ROLE.P || u.nrp ? '<span class="status ' + (u.hasPin ? 'ok' : 'warn') + '"><i class="bi bi-file-earmark-lock"></i> ' + (u.hasPin ? 'PIN aktif' : 'Belum ada PIN') + '</span>' : '') + '</div></div></div>' + (u.email ? '<div class="alert-soft info mt-3 d-flex justify-content-between gap-2 mono small"><span class="text-break min-w-0"><i class="bi bi-envelope"></i> ' + esc(u.email) + '</span><i class="bi bi-check-circle flex-shrink-0"></i></div>' : '');
   $('#oldPassWrap').hidden = bebas;
@@ -1686,42 +1890,33 @@ async function submitPassword(e) {
 
 // ── W-14 PENGATURAN ───────────────────────────────────────────
 const SET_FIELDS = [
-  ['Identitas Yayasan', [['NamaYayasan', 'Nama resmi yayasan', 'text', 8], ['Singkatan', 'Nama singkat', 'text', 4], ['AlamatYayasan', 'Alamat (kop slip)', 'text', 12], ['Telepon', 'Telepon TU', 'text', 4], ['WhatsAppTU', 'WhatsApp TU (62…)', 'text', 4], ['EmailKeuangan', 'Surel keuangan', 'email', 4], ['URLAplikasi', 'URL Aplikasi (GitHub Pages) — dasar tautan pribadi WhatsApp (kosong = otomatis)', 'url', 12]]],
+  ['Identitas Yayasan', [['NamaYayasan', 'Nama resmi yayasan', 'text', 8], ['Singkatan', 'Nama singkat', 'text', 4], ['AlamatYayasan', 'Alamat (kop slip)', 'text', 12], ['Telepon', 'Telepon TU', 'text', 4], ['WhatsAppTU', 'WhatsApp TU (62…)', 'text', 4], ['EmailKeuangan', 'Surel keuangan', 'email', 4], ['URLAplikasi', 'URL Aplikasi Portal Pegawai (kosong = https://slipgaji-blush.vercel.app/)', 'url', 12]]],
   ['Penanda Tangan Slip', [['NamaBendahara', 'Nama bendahara', 'text', 5], ['JabatanBendahara', 'Jabatan', 'text', 5], ['KotaTerbit', 'Kota terbit', 'text', 2]]],
   ['Templat Surel Slip', [['SubjekEmail', 'Subjek', 'text', 12], ['IsiEmail', 'Isi surel', 'textarea', 12]]],
   ['Komponen Gaji (nama kolom Excel & urutan di slip)', [['KomponenPenghasilan', 'Komponen penghasilan, urut kiri→kanan (pisahkan koma)', 'textarea', 6], ['KomponenPotongan', 'Komponen potongan, urut (pisahkan koma)', 'textarea', 6], ['KomponenSubtotal', 'Kolom subtotal — dihitung otomatis dari komponen di kirinya, tidak dijumlah ulang', 'text', 12]]],
   ['Kepegawaian', [['UsiaPensiunGuru', 'Usia pensiun guru (tahun)', 'number', 4], ['UsiaPensiunKaryawan', 'Usia pensiun karyawan / tendik (tahun)', 'number', 4]]],
-  ['Pengiriman', [['MetodeKirim', 'Metode kirim slip', 'select', 4], ['RincianDiPesan', 'Isi SUREL memuat jumlah gaji', 'select', 4], ['ModeUji', 'Mode Uji', 'select', 4], ['BatchSize', 'Slip per putaran pemicu (5–60)', 'number', 4]]],
-  ['WhatsApp Gateway (Fonnte) — pemberitahuan + tautan pribadi', [['AksesTautan', 'Tautan pribadi di WhatsApp', 'select', 5], ['MasaTautan', 'Masa berlaku tautan (hari, 1–90)', 'number', 3], ['JedaWA', 'Jeda antarpesan (detik, 1–15)', 'number', 4], ['NomorUjiWA', 'Nomor penerima saat Mode Uji', 'tel', 5], ['IsiWA', 'Isi pesan WhatsApp (tanpa nominal gaji)', 'textarea', 12]]]
+  ['Pengiriman Slip (surel + lampiran PDF)', [['RincianDiPesan', 'Rincian gaji di badan surel', 'select', 4], ['ModeUji', 'Mode Uji', 'select', 4], ['BatchSize', 'Slip per putaran pemicu (5–60)', 'number', 4]]]
 ];
 const SET_OPTS = {
-  ModeUji: [['Ya', 'Ya — surel ke pemilik skrip, WA ke nomor uji'], ['Tidak', 'Tidak — kirim ke pegawai (produksi)']],
-  MetodeKirim: [['Email', 'Email (Gmail, lampiran PDF)'], ['WhatsApp', 'WhatsApp (Fonnte · pemberitahuan + tautan pribadi)'], ['Email + WhatsApp', 'Email + WhatsApp']],
-  RincianDiPesan: [['Ya', 'Ya — surel memuat rincian gaji, total & THP'], ['Tidak', 'Tidak — surel berisi pemberitahuan + PDF saja']],
+  ModeUji: [['Ya', 'Ya — semua surel ke pemilik skrip (uji coba)'], ['Tidak', 'Tidak — kirim ke pegawai (produksi)']],
+  RincianDiPesan: [['Tidak', 'Tidak — cukup lampiran PDF untuk diunduh (disarankan)'], ['Ya', 'Ya — badan surel juga memuat rincian gaji & THP']],
   AksesTautan: [['Langsung', 'Langsung buka slip di akun pegawai (tanpa sandi)'], ['Sandi', 'Wajib sandi — tautan mengisi NRP, pegawai masuk dengan sandi']]
 };
-function waTokenCard() {
-  const gw = App.d.waGateway || {};
-  return '<div class="wa-token mt-3"><div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-2"><b><i class="bi bi-key"></i> Token perangkat Fonnte</b>' + (gw.ready ? '<span class="status ok"><i class="bi bi-shield-check"></i> Tersimpan ' + esc(gw.masked) + '</span>' : '<span class="status warn"><i class="bi bi-exclamation-triangle"></i> Belum diatur</span>') + '</div>' +
-    '<div class="d-flex flex-wrap gap-2"><div class="input-icon flex-grow-1" style="min-width:220px"><i class="bi bi-key"></i><input type="password" id="waTokenIn" class="form-control" autocomplete="off" spellcheck="false" placeholder="' + (gw.ready ? 'Tempel token baru untuk mengganti' : 'Tempel token dari dasbor Fonnte → Device') + '" aria-label="Token perangkat Fonnte"></div>' +
-    '<button type="button" class="btn btn-primary-app" data-action="saveWAToken"><i class="bi bi-save"></i> Simpan Token</button><button type="button" class="btn btn-ghost" data-action="testWA"' + (gw.ready ? '' : ' disabled') + '><i class="bi bi-send"></i> Uji Kirim</button>' + (gw.ready ? '<button type="button" class="btn btn-ghost text-danger" data-action="clearWAToken" aria-label="Hapus token"><i class="bi bi-trash3"></i></button>' : '') + '</div>' +
-    '<ol class="tiny text-muted-2 mt-2 mb-0 ps-3"><li>Daftar di fonnte.com → <b>Add Device</b> dengan nomor WhatsApp pengirim (disarankan nomor khusus TU).</li><li>Pindai QR (Connect) dari aplikasi WhatsApp di HP, lalu salin <b>Token</b> perangkat.</li><li>Tempel di sini → Simpan Token → Uji Kirim. Token disimpan di Script Properties dan tidak tampil lagi.</li></ol></div>';
-}
 RENDER.pengaturan = function () {
   const st = App.d.settingsFull || {};
   $('#setForm').innerHTML = SET_FIELDS.map(g => '<div class="col-12"><div class="card-app"><h3 class="mb-3">' + esc(g[0]) + '</h3><div class="row g-3">' + g[1].map(f => '<div class="col-md-' + f[3] + '"><label class="form-label" for="set_' + f[0] + '">' + esc(f[1]) + '</label>' +
     (f[2] === 'textarea' ? '<textarea class="form-control" rows="' + (f[0] === 'IsiEmail' || f[0] === 'IsiWA' ? 9 : 3) + '" id="set_' + f[0] + '" name="' + f[0] + '">' + esc(st[f[0]]) + '</textarea>' :
       f[2] === 'select' ? '<select class="form-select" id="set_' + f[0] + '" name="' + f[0] + '">' + SET_OPTS[f[0]].map(o => '<option value="' + esc(o[0]) + '"' + (String(st[f[0]]) === o[0] ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('') + '</select>' :
         '<input class="form-control" type="' + f[2] + '" id="set_' + f[0] + '" name="' + f[0] + '" value="' + esc(f[0] === 'NomorUjiWA' && st[f[0]] ? fmtWA(st[f[0]]) : st[f[0]]) + '"' + (f[0] === 'NomorUjiWA' ? ' inputmode="tel" placeholder="Kosong = WhatsApp TU (' + esc(fmtWA(st.WhatsAppTU)) + ')"' : '') + '>') + '</div>').join('') + '</div>' +
-    (g[0] === 'Templat Surel Slip' ? '<div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mt-2"><p class="tiny text-muted-2 mb-0">Placeholder: {{nama}} {{nrp}} {{unit}} {{periode}} {{jenis}} {{link}} (tautan pribadi ke akun) {{url}} (portal) {{yayasan}} {{thp}} {{bruto}} {{potongan}} · <b>{{rincian}}</b> = kartu rincian gaji & THP · <b>{{pdf}}</b> = keterangan lampiran PDF + tombol ke akun</p><button type="button" class="btn btn-ghost btn-sm" data-action="previewMsg" data-id=""><i class="bi bi-chat-square-text"></i> Pratinjau Pesan</button></div>' : '') +
+    (g[0] === 'Templat Surel Slip' ? '<div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mt-2"><p class="tiny text-muted-2 mb-0">Placeholder: {{nama}} {{nrp}} {{unit}} {{periode}} {{jenis}} {{yayasan}} {{url}} (portal) · <b>{{pdf}}</b> = kotak petunjuk unduh lampiran PDF (otomatis ditambahkan bila tidak ada) · <b>{{rincian}}</b> = rincian gaji, hanya bila diaktifkan</p><button type="button" class="btn btn-ghost btn-sm" data-action="previewMsg" data-id=""><i class="bi bi-envelope-paper"></i> Pratinjau Surel</button></div>' : '') +
     (g[0] === 'Identitas Yayasan' ? urlHint() + logoCard() + googleCard() : '') +
-    (g[0] === 'Pengiriman' ? '<p class="tiny text-muted-2 mt-2 mb-0">Sisa kuota surel hari ini: <b>' + (App.d.quota < 0 ? 'tidak terbaca' : fmtNum(App.d.quota)) + '</b>. Disarankan memakai akun Google Workspace yayasan. Metode juga bisa dipilih langsung di halaman Pratinjau & Kirim.</p>' : '') +
-    (g[0].indexOf('WhatsApp Gateway') === 0 ? '<div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mt-2"><p class="tiny text-muted-2 mb-0">Placeholder: {{nama}} {{nrp}} {{unit}} {{periode}} {{jenis}} <b>{{link}}</b> (tautan pribadi, wajib — otomatis ditambahkan bila tidak ada) {{masa}} (hari berlaku) {{url}} {{yayasan}} {{tu}}. Baris berisi {{rincian}}, {{pdf}}, {{thp}}, {{bruto}}, {{potongan}} otomatis dibuang — <b>nominal gaji tidak pernah dikirim lewat WhatsApp</b>. Format: *tebal*, _miring_. Teks saja, jadi jalan di paket gratis Fonnte.</p><button type="button" class="btn btn-ghost btn-sm" data-action="previewMsg" data-id=""><i class="bi bi-chat-square-text"></i> Pratinjau Pesan</button></div>' + waTokenCard() : '') + '</div></div>').join('');
+    (g[0].indexOf('Pengiriman Slip') === 0 ? '<p class="tiny text-muted-2 mt-2 mb-0"><i class="bi bi-envelope"></i> Slip dikirim <b>hanya lewat surel</b> sebagai <b>lampiran PDF</b> yang diunduh pegawai. Sisa kuota surel hari ini: <b>' + (App.d.quota < 0 ? 'tidak terbaca' : fmtNum(App.d.quota)) + '</b>. Disarankan memakai akun Google Workspace yayasan.</p>' : '') +
+    '</div></div>').join('');
 };
-/** URL dasar tautan pribadi WhatsApp yang dipakai server. */
+/** Alamat Portal Pegawai yang dipakai server ({{url}}). */
 function urlHint() {
   const u = App.d.webUrl || '';
-  return '<p class="tiny text-muted-2 mt-2 mb-0"><i class="bi bi-link-45deg"></i> Tautan pribadi WhatsApp & surel memakai: ' + (u ? '<span class="mono text-break">' + esc(u) + (u.indexOf('?') >= 0 ? '&' : '?') + 's=…</span>' : '<b class="text-danger">URL belum diketahui — buka aplikasi lewat alamat GitHub Pages atau isi kolom di atas</b>') + '. Bila kosong, alamat GitHub Pages tempat Admin Yayasan membuka aplikasi tercatat otomatis. Backend API: <span class="mono text-break">' + esc(typeof GAS_URL === 'string' ? GAS_URL : '-') + '</span></p>';
+  return '<p class="tiny text-muted-2 mt-2 mb-0"><i class="bi bi-link-45deg"></i> Alamat Portal Pegawai: ' + (u ? '<span class="mono text-break">' + esc(u) + '</span>' : '<b class="text-danger">URL belum diketahui — isi kolom di atas</b>') + '. Kosongkan kolom di atas untuk memakai alamat bawaan <span class="mono">https://slipgaji-blush.vercel.app/</span>. Backend API: <span class="mono text-break">' + esc(typeof GAS_URL === 'string' ? GAS_URL : '-') + '</span></p>';
 }
 /** Kartu Client ID OAuth Google (opsional) — tombol "Masuk dengan Google" di halaman login. */
 function googleCard() {
@@ -1782,7 +1977,7 @@ async function uploadLogo(input) {
 
 async function saveSettings(btn) {
   const fd = new FormData($('#setForm')); const obj = {}; fd.forEach((v, k) => obj[k] = v);
-  if (obj.ModeUji === 'Tidak' && App.d.settingsFull.ModeUji !== 'Tidak' && !(await confirmBox({ title: 'Matikan Mode Uji?', sub: 'Slip akan dikirim langsung ke pegawai', body: 'Pastikan alamat surel dan No. WhatsApp pegawai sudah benar. Pengiriman berikutnya akan diterima oleh pegawai.', ok: 'Ya, Mode Produksi' }))) return;
+  if (obj.ModeUji === 'Tidak' && App.d.settingsFull.ModeUji !== 'Tidak' && !(await confirmBox({ title: 'Matikan Mode Uji?', sub: 'Slip akan dikirim langsung ke pegawai', body: 'Pastikan alamat surel pegawai sudah benar. Pengiriman berikutnya akan diterima oleh pegawai.', ok: 'Ya, Mode Produksi' }))) return;
   const prev = Object.assign({}, App.d.settingsFull);
   Object.assign(App.d.settingsFull, obj); App.d.settings.modeUji = obj.ModeUji; App.d.settings.singkatan = obj.Singkatan; updateChrome(); // optimistic
   busy(btn, true, 'Menyimpan…');
@@ -1798,9 +1993,9 @@ async function saveSettings(btn) {
 // ── BANTUAN (Pegawai) ─────────────────────────────────────────
 RENDER.bantuan = function () {
   const masa = (App.d && App.d.settings && App.d.settings.masaTautan) || 14;
-  const faq = [['Kapan slip gaji terbit?', 'Slip diterbitkan setelah Bendahara Yayasan memvalidasi rekap gaji, biasanya pada tanggal pencairan. Anda menerima surel dan/atau pesan WhatsApp dari Bendahara, dan slip juga tersedia di menu Slip Saya.'],
-    ['Bagaimana cara melihat slip gaji?', 'Dua cara: (1) ketuk tautan pribadi di pesan WhatsApp dari Bendahara — slip langsung terbuka di akun Anda (tautan berlaku ' + masa + ' hari); atau (2) buka Portal Pegawai dan masuk dengan NRP & kata sandi. Pesan WhatsApp tidak memuat nominal gaji demi kerahasiaan.'],
-    ['Tautan WhatsApp saya tidak bisa dibuka.', 'Tautan berlaku ' + masa + ' hari dan diganti bila slip dikirim ulang. Setelah kedaluwarsa, buka tautan yang sama lalu masuk dengan NRP & kata sandi — slip tetap tersedia. Jangan meneruskan tautan kepada orang lain.'], ['Mengapa saya diminta PIN saat mengunduh?', 'PIN 6 digit melindungi unduhan PDF dari orang lain yang memegang perangkat Anda. Verifikasi berlaku 15 menit.'], ['Saya lupa kata sandi / PIN.', 'Hubungi Tata Usaha unit Anda. Petugas akan mereset dan memberikan kata sandi sementara, lalu Anda membuat sandi & PIN baru.'], ['Akun saya terkunci.', 'Akun terkunci 15 menit setelah 5 kali salah sandi/PIN. Tunggu atau minta Tata Usaha membuka kunci.'], ['Nominal slip tidak sesuai.', 'Gunakan tombol WhatsApp TU di bawah sebelum tanggal 20 bulan berjalan. Koreksi akan diterbitkan sebagai slip Revisi.']];
+  const faq = [['Kapan slip gaji terbit?', 'Slip diterbitkan setelah Bendahara Yayasan memvalidasi rekap gaji, biasanya pada tanggal pencairan. Anda menerima surel berisi slip PDF dari Bendahara, dan slip juga tersedia di menu Slip Saya.'],
+    ['Bagaimana cara melihat slip gaji?', 'Buka surel slip gaji dari Bendahara, lalu unduh lampiran file PDF-nya (klik/ketuk lampiran → ikon Unduh). Simpan file tersebut sebagai arsip. Slip juga tersedia di menu Slip Saya setelah masuk dengan NRP & kata sandi.'],
+    ['Lampiran PDF tidak bisa dibuka / diunduh.', 'Pastikan aplikasi pembaca PDF terpasang dan ruang penyimpanan cukup. Bila surel tidak masuk, periksa folder Spam/Promosi. Anda juga bisa mengunduh slip dari menu Slip Saya, atau hubungi Tata Usaha agar slip dikirim ulang. Jangan meneruskan surel slip kepada orang lain.'], ['Mengapa saya diminta PIN saat mengunduh?', 'PIN 6 digit melindungi unduhan PDF dari orang lain yang memegang perangkat Anda. Verifikasi berlaku 15 menit.'], ['Saya lupa kata sandi / PIN.', 'Hubungi Tata Usaha unit Anda. Petugas akan mereset dan memberikan kata sandi sementara, lalu Anda membuat sandi & PIN baru.'], ['Akun saya terkunci.', 'Akun terkunci 15 menit setelah 5 kali salah sandi/PIN. Tunggu atau minta Tata Usaha membuka kunci.'], ['Nominal slip tidak sesuai.', 'Gunakan tombol WhatsApp TU di bawah sebelum tanggal 20 bulan berjalan. Koreksi akan diterbitkan sebagai slip Revisi.']];
   $('#helpBody').innerHTML = '<p class="eyebrow">Bantuan & Akun</p><h1>Pusat Bantuan Tata Usaha</h1><p class="text-muted-2">Pertanyaan umum seputar slip gaji digital.</p>' + faq.map(f => '<details class="card-app mb-2"><summary class="fw-semibold" style="cursor:pointer;min-height:28px">' + esc(f[0]) + '</summary><p class="small text-muted-2 mt-2 mb-0">' + esc(f[1]) + '</p></details>').join('') + helpCard() + '<button class="btn btn-ghost w-100 mt-3 text-danger" data-action="logout"><i class="bi bi-box-arrow-right"></i> Keluar Sesi</button>';
 };
 
@@ -1878,8 +2073,7 @@ const ACTIONS = {
   approveSlip: async id => { const s = App.idx.slip[id]; if (!(await confirmBox({ title: 'Setujui anomali ringan?', sub: s.nama, body: '<div class="alert-soft warn small">' + esc(s.cv) + '</div><p class="small mt-2 mb-0">Baris akan ditandai valid (tercatat di log audit dengan nama Anda).</p>', ok: 'Setujui' }))) return; try { applyBoot(await api('apiApproveSlip', id)); toast('Baris disetujui.', 'success'); rerender(); } catch (e) { fail(e); } },
   resendSlip: async id => {
     const s = App.idx.slip[id]; if (!s) return;
-    const gagal = ['email', 'wa'].filter(ch => s[CH[ch].k] === 'Gagal'), kanal = gagal.length ? gagal : kanalAktif();
-    if (kanal.indexOf('wa') >= 0 && !(App.d.waGateway || {}).ready) return toast('Simpan token WhatsApp gateway di Pengaturan terlebih dahulu.', 'warning', 'Token belum diatur');
+    const gagal = ['email'].filter(ch => s[CH[ch].k] === 'Gagal'), kanal = ['email']; // hanya surel
     const p = App.idx.peg[s.nrp] || {};
     const tujuan = kanal.map(ch => ch === 'email' ? s.email : fmtWA(p.NoWA) || '(No. WA kosong)').join(' · ');
     if (!(await confirmBox({ title: 'Kirim ulang slip?', sub: s.nama + ' · ' + tujuan, icon: 'bi-arrow-repeat', body: 'PDF dibuat ulang dan dikirim ulang via <b>' + esc(kanalTxt(kanal)) + '</b>' + (gagal.length ? ' (kanal yang gagal)' : '') + '. Slip lama di Drive dipindahkan ke sampah.', ok: 'Kirim Ulang' }))) return;
@@ -1891,35 +2085,13 @@ const ACTIONS = {
     await whenNoModal();
     const s = App.idx.slip[id];
     $('#msgEmail').innerHTML = '<div class="text-center py-5 text-muted-2" role="status"><span class="spinner-border text-success"></span><p class="mt-2 mb-0">Menyusun isi pesan…</p></div>'; $('#msgWa').innerHTML = '';
-    msgTab(metodeNow() === 'WhatsApp' ? 'wa' : 'email');
+    msgTab('email');
     msgModal.show();
     try { renderMsgPreview(await api('apiPreviewPesan', id), s); }
     catch (e) { msgModal.hide(); fail(e); }
   },
   msgTab: id => msgTab(id),
   msgEditTpl: () => { msgModal.hide(); navigateTo('pengaturan'); },
-  setMetode: async id => {
-    if (!METODE[id] || id === metodeNow()) return;
-    const prev = metodeNow();
-    App.d.settingsFull.MetodeKirim = id; App.d.settings.metode = id; rerender(); // instan
-    try { applyBoot(await api('apiSetMetodeKirim', id, App.ui.currentPeriode || '')); rerender(); toast('Slip akan dikirim via ' + METODE[id].lbl + '. Validasi kontak diperbarui.', 'success', 'Metode pengiriman'); }
-    catch (e) { App.d.settingsFull.MetodeKirim = prev; App.d.settings.metode = prev; rerender(); fail(e); }
-  },
-  fixWA: async id => {
-    const s = App.idx.slip[id]; if (!s) return;
-    const p = App.idx.peg[s.nrp] || {};
-    const why = s.sw === 'Gagal' || s.sw === 'Dilewati' ? s.ew : /WhatsApp/.test(s.cv || '') ? s.cv : '';
-    const r = await confirmBox({ title: 'Perbaiki No. WhatsApp', sub: s.nama + ' · NRP ' + s.nrp, icon: 'bi-whatsapp', ok: 'Simpan & Validasi',
-      body: (why ? '<div class="alert-soft warn small mb-3">' + esc(why) + '</div>' : '') + '<label class="form-label" for="fixWa">Nomor WhatsApp aktif pegawai</label><div class="input-icon"><i class="bi bi-whatsapp"></i><input id="fixWa" type="tel" inputmode="tel" autocomplete="off" class="form-control" placeholder="0812-3456-7890" value="' + esc(p.NoWA ? fmtWA(p.NoWA) : '') + '"></div><p class="tiny text-muted-2 mt-2 mb-0">Disimpan di Master Data Pegawai (format 62…), dipakai untuk pengiriman berikutnya.</p>' + (s.sw === 'Gagal' ? '<label class="check-row mt-3"><input type="checkbox" id="fixWaResend" checked> <span>Kirim ulang slip via WhatsApp setelah disimpan</span></label>' : ''),
-      validate: () => { const d = $('#fixWa').value.replace(/\D/g, ''); return /^(0|62|8)\d{8,13}$/.test(d) || 'Nomor WhatsApp belum valid (contoh 0812-3456-7890).'; },
-      collect: () => ({ wa: $('#fixWa').value.trim(), resend: $('#fixWaResend') ? $('#fixWaResend').checked : false }) });
-    if (!r) return;
-    try {
-      applyBoot(await api('apiFixSlipWA', id, r.wa)); rerender();
-      toast('No. WhatsApp ' + s.nama + ' diperbarui.', 'success');
-      if (r.resend) { if ((App.d.waGateway || {}).ready) startDispatch(s.p, 'single', id); else toast('Simpan token WhatsApp di Pengaturan untuk mengirim ulang.', 'warning'); }
-    } catch (e) { fail(e); }
-  },
   removeLogo: async () => {
     if (!(await confirmBox({ title: 'Hapus logo yayasan?', sub: 'Kembali ke emblem bawaan', icon: 'bi-image', okCls: 'btn-danger', ok: 'Hapus Logo', body: 'Slip PDF, surel, dan tampilan aplikasi akan memakai emblem bawaan. Berkas logo dipindahkan ke sampah Drive.' }))) return;
     try { await api('apiRemoveLogo'); Object.assign(App.d.settings, { logo: '', logoSumber: 'bawaan' }); if (App.d.settingsFull) App.d.settingsFull.LogoUrl = ''; App.ui.htmlCache = {}; sess.set('boot', App.d); applyLogo(''); RENDER.pengaturan(); toast('Logo dihapus.', 'success'); } catch (e) { fail(e); }
@@ -1935,29 +2107,13 @@ const ACTIONS = {
     if (!(await confirmBox({ title: 'Nonaktifkan login Google?', sub: 'Client ID OAuth', icon: 'bi-google', okCls: 'btn-danger', ok: 'Nonaktifkan', body: 'Tombol "Masuk dengan Google" disembunyikan. Pengguna tetap bisa masuk dengan NRP & kata sandi.' }))) return;
     try { App.d.googleLogin = await api('apiSaveGoogleClientId', ''); sess.set('boot', App.d); RENDER.pengaturan(); toast('Login Google dinonaktifkan.', 'success'); } catch (e) { fail(e); }
   },
-  saveWAToken: async (id, btn) => {
-    const v = $('#waTokenIn').value.trim();
-    if (!v) return toast('Tempel token perangkat dari dasbor Fonnte.', 'warning');
-    busy(btn, true, 'Menyimpan…');
-    try { App.d.waGateway = await api('apiSaveWAToken', v); $('#waTokenIn').value = ''; sess.set('boot', App.d); RENDER.pengaturan(); toast('Token WhatsApp tersimpan di Script Properties (' + App.d.waGateway.masked + ').', 'success', 'WhatsApp Gateway'); }
-    catch (e) { fail(e); } finally { busy(btn, false); }
-  },
-  clearWAToken: async () => {
-    if (!(await confirmBox({ title: 'Hapus token WhatsApp?', sub: 'Gateway Fonnte', icon: 'bi-trash3', okCls: 'btn-danger', ok: 'Hapus Token', body: 'Pengiriman lewat WhatsApp tidak dapat dilakukan sampai token baru disimpan.' }))) return;
-    try { App.d.waGateway = await api('apiSaveWAToken', ''); sess.set('boot', App.d); RENDER.pengaturan(); toast('Token WhatsApp dihapus.', 'success'); } catch (e) { fail(e); }
-  },
-  testWA: async (id, btn) => {
-    const no = ($('#set_NomorUjiWA') && $('#set_NomorUjiWA').value.trim()) || '';
-    busy(btn, true, 'Mengirim uji…');
-    try { const r = await api('apiTestWA', no); toast('Pesan uji masuk antrean gateway ke ' + fmtWA(r.to) + '. Periksa WhatsApp di nomor tersebut' + (r.url ? '' : ' — URL aplikasi belum diketahui, isi di Identitas Yayasan') + '.', r.url ? 'success' : 'warning', 'Uji WhatsApp berhasil'); }
-    catch (e) { fail(e); } finally { busy(btn, false); }
-  },
   resendFailed: () => { const j = App.d.dispatch && App.d.dispatch.job; if (j) startDispatch(j.idPeriode, 'failed'); },
   pauseJob: async () => { App.ui.worker = false; try { applyDispatch(await api('apiPauseDispatch', true)); toast('Pengiriman dijeda.', 'warning'); } catch (e) { fail(e); } },
   resumeJob: async () => { try { applyDispatch(await api('apiPauseDispatch', false)); startWorker(); toast('Pengiriman dilanjutkan.', 'success'); } catch (e) { fail(e); } },
   copyLog: () => { const t = $('#consoleBody').innerText; if (navigator.clipboard) navigator.clipboard.writeText(t).then(() => toast('Log disalin.', 'success')); },
   addPegawai: () => pegawaiForm(null),
   pegTemplate: mode => downloadPegawaiTemplate(mode),
+  pegExport: fmt => pegExportDialog(fmt),
   deletePeg: id => deletePegawai('nrp', id),
   deletePegUnit: () => deletePegawai('unit', ($('#pegUnit') && $('#pegUnit').value) || ''),
   deletePegAll: () => deletePegawai('all', ''),
